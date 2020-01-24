@@ -1,0 +1,1182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+		<link href="http://www.water-data.com/waterdata.css" rel="stylesheet" type="text/css">
+		
+		<link id="faviconLink" rel="shortcut icon" href="/images/snow.png" />
+		
+		<script src="http://lakepowell.water-data.com/highcharts/js/highcharts.js"></script>
+		<script src="http://lakepowell.water-data.com/highcharts/js/modules/exporting.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+		
+		<link id="faviconLink" rel="shortcut icon" href="/images/water.png" />
+		
+		<script type="text/javascript" src="http://www.water-data.com/milonic_src.js"></script> 
+		<script type="text/javascript" src="http://www.water-data.com/mmenudom.js"></script> 
+
+		</head><body><META NAME="description" CONTENT="water-data.com  Lake Powell Water Database"><META NAME="keywords" CONTENT="<h1></h1>"><title>Lake Powell Water Database</title>
+	
+	<script type="text/javascript">
+	
+	$(function () 
+	{ 
+	    var myChart = Highcharts.chart('chartcontainer', 
+	    {
+	    chart: 
+	    {
+	        type: 'area'
+	        , zoomType: 'x'
+	        , borderColor: '#606161'
+	        , borderWidth: 2
+	    },
+	    title: 
+	    {
+	        text: 'Lake Powell Water Level (1 year either side of )'
+	    },
+	    subtitle: 
+	    {
+	        text: 'Elevation in Feet MSL, Flows in CFS, Temps in degrees F'
+	    },
+	    xAxis: 
+	    {
+	       	labels: 
+	        {
+	            formatter: function () 
+	            {
+	                return this.value; // clean, unformatted number for year
+	            }
+	        }
+	        , categories: []
+	        , title: ''
+	        , crosshair:
+	        {
+	        	color: 'black'
+	        	, width: .5
+	        } 
+	    },
+	    yAxis: 
+	    {
+	        title: ''
+	    },
+	    legend: 
+	    {
+	        enabled: false
+	    }, 
+	   	tooltip: 
+	    {
+	        //pointFormat: '{point.y}'
+	        backgroundColor: '#DFF7FD',
+	        crosshairs: true,
+	        formatter: function() 
+	        {
+		        var s = '<b>'+ this.x +'</b>';
+		        var chart = this.points[0].series.chart; //get the chart object
+		        var categories = chart.xAxis[0].categories; //get the categories array
+		        var index = 0;
+		        var kntr = 0;
+		        while(this.x !== categories[index]){index++;} //compute the index of corr y value in each data arrays           
+		        $.each(chart.series, function(i, series) 
+		        { //loop through series array
+		        	switch (kntr)
+		        	{
+		        		case 1:
+		        		s += ' ' + series.name + ': ' + series.data[index].y ;     //use index to get the y value
+		        		if (series.data[index].y != 0)
+		        		{
+		        			s += ' ' + series.name + ': ' + series.data[index].y ;     //use index to get the y value
+		        		}
+		        		else
+		        		{
+		        			s += ' ' + series.name + ': n/a';     //use index to get the y value
+		        		}
+		        		break;
+		        		
+		        		case 3:
+		        		if (series.data[index].y != 0)
+		        		{
+		        			s += ' ' + series.name + ': ' + series.data[index].y ;     //use index to get the y value
+		        		}
+		        		else
+		        		{
+		        			s += ' ' + series.name + ': n/a';     //use index to get the y value
+		        		}
+		        		break;
+		        		
+		        		case 4:		
+		        		if (series.data[index].y != 0)
+		        		{
+		        			s += ' ' + series.name + ': ' + series.data[index].y ;     //use index to get the y value
+		        		}
+		        		else
+		        		{
+		        			s += ' ' + series.name + ': n/a';     //use index to get the y value
+		        		}
+		        		break;
+		        	
+		        		case 6:		// low
+		        		if (series.data[index].y != 0)
+		        		{
+		        			s += ' ' + series.name + ': ' + series.data[index].y ;     //use index to get the y value
+		        		}
+		        		else
+		        		{
+		        			s += ' ' + series.name + ': n/a';     //use index to get the y value
+		        		}
+		        		break;
+		        		
+		        		case 7:		// water
+		        		if (series.data[index].y != 0)
+		        		{
+		        			s += ' ' + series.name + ': ' + series.data[index].y ;     //use index to get the y value
+		        		}
+		        		else
+		        		{
+		        			s += ' ' + series.name + ': n/a';     //use index to get the y value
+		        		}
+		        		break;
+		        		
+		        		
+		        		default:
+			            
+		        		if (series.data[index].y != 0)
+		        		{
+		        			s += '<br/>' + series.name + ': ' + series.data[index].y ;     //use index to get the y value
+		        		}
+		        		else
+		        		{
+		        			s += '<br/>' + series.name + ': n/a';     //use index to get the y value
+		        		}
+		        		break;
+			        }
+		           	kntr = kntr + 1;
+		        });           
+		        return s;
+		    },
+		    shared: true
+	    },																	
+	    plotOptions: 
+	    {
+	        area: {
+	            
+	            marker: {
+	                radius: 2
+	            }
+	            , lineWidth: 2,
+	            states: {
+	                hover: {
+	                    lineWidth: 2
+	                }
+	            },
+	            threshold: null
+	        }
+	    },
+	    series: 
+	    [
+	    	{
+		        name: 'Elevation',
+		        visible: true,
+		        data: []
+		    }
+		    , 
+		    {
+		    	name: 'Elev Change',
+		    	visible: false,
+		    	data: []
+		    }
+		    , 
+		    {
+		    	name: 'Inflow',
+		    	visible: false,
+		    	data: []
+		    }
+		    , 
+		    {
+		    	name: 'Outflow',
+		    	visible: false,
+		    	data: []
+		    }
+		    , 
+		    {
+		    	name: 'Net',
+		    	visible: false,
+		    	data: []
+		    }
+		    , 
+		    {
+		    	name: 'High',
+		    	visible: false,
+		    	data: []
+		    }
+		    , 
+		    {
+		    	name: 'Low',
+		    	visible: false,
+		    	data: []
+		    }
+		    , 
+		    {
+		    	name: 'Water',
+		    	visible: false,
+		    	data: []
+		    }
+		    
+		   
+	    ]
+	});
+});
+	</script>
+	
+	<script src="http://lakepowell.water-data.com/highcharts/js/highcharts.js"></script>
+	<script src="http://lakepowell.water-data.com/highcharts/js/modules/exporting.js"></script>
+	
+
+	
+	<table border=0 width=97%%><tr height=138>
+			<td colspan = 5 valign=top><img src="images2/wdb_banner_powell.jpg" title="Lake Powell Water Database"><br>
+<script language="JavaScript" src="../../milonic_menu_code.js" type="text/javascript"></script>
+<script>
+_menuCloseDelay=500;
+_menuOpenDelay=150;
+_subOffsetTop=2;
+_subOffsetLeft=-3;
+with(OneLevelIn=new mm_style()){
+bordercolor="#296488";
+borderstyle="solid";
+borderwidth="1";
+fontfamily="Verdana, Arial, Tahoma";
+fontsize="11";
+fontstyle="normal";
+fontweight="bold";
+headerbgcolor="#065535";
+headercolor="#065535";
+offbgcolor="#DCE9F0";
+offcolor="#464646";
+onbgcolor="#4F8EB6";
+oncolor="#ffff33";
+outfilter="randomdissolve(duration=0.3)";
+overfilter="Fade(duration=0.2);Alpha(opacity=100);Shadow(color=#777777, Direction=135, Strength=5)";
+padding="6";
+pagebgcolor="#82B6D7";
+pagecolor="#ffff33";
+separatorcolor="#2D729D";
+separatorsize="1";
+subimage="menuimages/arrow.gif";
+subimagepadding="2";
+}
+
+with(milonic=new menuname("SnowpackMain")){
+style=OneLevelIn;
+alwaysvisible="1";
+orientation="1";
+
+}
+
+with(milonic=new menuname("Webcams & Photos")){
+style=OneLevelIn;
+aI("text=Lake Powell Webcams;url=http://webcams.water-data.com/powell/;");
+aI("text=Webcams around the UC Basin;url=http://webcams.water-data.com/uc_snowcams/;");
+aI("text=Other Western Webcams;url=http://webcams.water-data.com/otherwestern/;");
+aI("text=Road Conditions / Cams;showmenu=Roadcams;");
+
+}
+
+with(milonic=new menuname("Water Databases")){
+style=OneLevelIn;
+overflow="scroll";
+aI("text=Flaming Gorge Reservoir;url=http://flaminggorge.water-data.com;");
+aI("text=Blue Mesa Reservoir;url=http://bluemesa.water-data.com;");
+aI("text=Lake Navajo;url=http://lakenavajo.water-data.com;");
+aI("text=Lake Powell;url=http://lakepowell.water-data.com/;");
+aI("text=Lake Mead;url=http://lakemead.water-data.com;");
+aI("text=Lake Mohave;url=http://lakemohave.water-data.com;");
+aI("text=Lake Havasu;url=http://lakehavasu.water-data.com;");
+
+}
+
+with(milonic=new menuname("Home")){
+style=OneLevelIn;
+alwaysvisible="1";
+orientation="1";
+aI("text=Home;url=http://www.water-data.com;");
+aI("text=Water Databases;showmenu=Water Databases;");
+aI("text=Snow Data;showmenu=Snow Data;");
+aI("text=Graphs;showmenu=Graphs;");
+aI("text=Waynes Words;url=http://wayneswords.net;");
+aI("text=Webcams;showmenu=Webcams & Photos;");
+aI("text=Company Info;showmenu=Company Info;");
+
+}
+
+with(milonic=new menuname("Blogs & Msg Boards")){
+style=OneLevelIn;
+aI("text=Lake Powell;url=http://blogs.water-data.com/forumdisplay.php?f=2;");
+aI("text=Waynes Words;url=http://wayneswords.net;");
+
+}
+
+with(milonic=new menuname("Contact Us")){
+style=OneLevelIn;
+aI("text=Company Info;url=http://www.water-data.com/aboutus.php;");
+
+}
+
+with(milonic=new menuname("Water Resources")){
+style=OneLevelIn;
+aI("text=Lake Powell;url=http://resources.water-data.com/lakepowell;");
+aI("text=Lake Mead;url=http://resources.water-data.com/lakemead;");
+aI("text=Lake Mohave;url=http://resources.water-data.com/lakemohave;");
+aI("text=Lake Havasu;url=http://resources.water-data.com/lakehavasu;");
+
+}
+
+with(milonic=new menuname("Lake Powell")){
+style=OneLevelIn;
+aI("text=Lake Powell;url=http://lakepowell.water-data.com;");
+
+}
+
+with(milonic=new menuname("Lakes")){
+style=OneLevelIn;
+aI("text=Colorado River Basin Lakes;showmenu=ColoradoRiverBasin;");
+aI("text=Lake Cumberland News;url=http://news.water-data.com/cumberland;");
+aI("text=Missouri River Basin Lakes;showmenu=MissouriRiverBasin;");
+aI("text=Lake Shasta News;url=http://news.water-data.com/shasta;");
+aI("text=Toledo Bend Reservoir News;url=http://news.water-data.com/toledo_bend;");
+aI("text=Elephant Butte Reservoir News;url=http://news.water-data.com/elephant_butte;");
+aI("text=Utah Lake News;url=http://news.water-data.com/utah;");
+aI("text=The Great Lakes;showmenu=GreatLakes;");
+
+}
+
+with(milonic=new menuname("Rivers")){
+style=OneLevelIn;
+aI("text=Colorado River News;url=http://news.water-data.com/colo_river;");
+aI("text=Green River News;url=http://news.water-data.com/green_river;");
+aI("text=San Juan River News;url=http://news.water-data.com/sj_river;");
+
+}
+
+with(milonic=new menuname("Webcams")){
+style=OneLevelIn;
+
+}
+
+with(milonic=new menuname("OtherCoolSites")){
+style=OneLevelIn;
+aI("text=US River Drainage Map;url=http://water.usgs.gov/wsc/map_index.html;target=main;");
+
+}
+
+with(milonic=new menuname("CurrentWeather")){
+style=OneLevelIn;
+aI("text=Current Weather in Southwest;url=http://snowpack.water-data.com/uppercolorado/westernweather.php;");
+aI("text=Forecasted High Temps in Southwest;url=http://snowpack.water-data.com/uppercolorado/westerntemps.php;");
+aI("text=Western US Water Vapor;url=http://snowpack.water-data.com/uppercolorado/watervapor.php;");
+aI("text=Grand Junction Weather Radar;url=https://radar.weather.gov/radar.php?rid=gjx;target=main;");
+aI("text=Pacific Storms Coming Our Way;url=https://weather.com/maps/satellite/pacificoceanweathermap;target=main;");
+aI("text=Forecasted Jet Stream Path;url=https://www.wunderground.com/maps/wind/jet-stream;target=main;");
+aI("text=Global Sea Surface Temperatures;url=https://www.cpc.ncep.noaa.gov/products/GIS/map_viewer/cpcgis.swf;target=main;");
+
+}
+
+with(milonic=new menuname("SnowWeatherCams")){
+style=OneLevelIn;
+
+}
+
+with(milonic=new menuname("Graphs")){
+style=OneLevelIn;
+aI("text=Flaming Gorge;url=http://graphs.water-data.com/flaminggorge;");
+aI("text=Blue Mesa;url=http://graphs.water-data.com/bluemesa;");
+aI("text=Lake Navajo;url=http://graphs.water-data.com/lakenavajo;");
+aI("text=Lake Powell;url=http://graphs.water-data.com/lakepowell;");
+aI("text=Lake Mead;url=http://graphs.water-data.com/lakemead;");
+aI("text=Lake Mohave;url=http://graphs.water-data.com/lakemohave;");
+aI("text=Lake Havasu;url=http://graphs.water-data.com/lakehavasu;");
+aI("text=Upper Colorado Snowpack;url=http://graphs.water-data.com/ucsnowpack;");
+
+}
+
+with(milonic=new menuname("Snowpack")){
+style=OneLevelIn;
+aI("text=Snowpack Above Lake Powell Database;url=http://snowpack.water-data.com/uppercolorado/index.php;");
+aI("text=River Basins;showmenu=Basins;");
+aI("text=Other Cool Sites;showmenu=OtherCoolSites;");
+aI("text=Current Weather;showmenu=CurrentWeather;");
+
+}
+
+with(milonic=new menuname("Basins")){
+style=OneLevelIn;
+aI("text=All Upper Colorado;url=http://snowpack.water-data.com/uppercolorado/index.php?getall=1;");
+aI("text=- Animas;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=1;");
+aI("text=- Colorado River Plateaus;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=2;");
+aI("text=- Dolores / San Miguel Rivers;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=3;");
+aI("text=- Duchesne River;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=4;");
+aI("text=- Gunnison River;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=5;");
+aI("text=- Muddy / Fremont / Escalante Rivers;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=6;");
+aI("text=- Price / San Rafael Rivers;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=7;");
+aI("text=- Roaring Fork River;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=8;");
+aI("text=- San Juan River Headwaters;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=9;");
+aI("text=- Upper Colorado River Headwaters;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=10;");
+aI("text=- Upper Green River;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=11;");
+aI("text=- Yampa / White Rivers;url=http://snowpack.water-data.com/uppercolorado/index.php?allrb=12;");
+aI("text=Other Reports;showmenu=OtherReports;");
+
+}
+
+with(milonic=new menuname("RoadCams")){
+style=OneLevelIn;
+aI("text=Colorado;url=http://www.cotrip.org/map.htm#/default;");
+aI("text=Utah;url=http://www.commuterlink.utah.gov/;");
+aI("text=Wyoming;url=https://map.wyoroad.info/wtimap/index.html;");
+
+}
+
+with(milonic=new menuname("SnowpackMain2")){
+style=OneLevelIn;
+
+}
+
+with(milonic=new menuname("GreatLakes")){
+style=OneLevelIn;
+aI("text=Lake Superior;url=http://news.water-data.com/lakesuperior/;");
+aI("text=Lake Michigan;url=http://news.water-data.com/lakemichigan/;");
+aI("text=Lake Huron;url=http://news.water-data.com/lakehuron/;");
+aI("text=Lake Erie;url=http://news.water-data.com/lakeerie/;");
+aI("text=Lake Ontario;url=http://news.water-data.com/lakeontario/;");
+
+}
+
+with(milonic=new menuname("ColoradoRiverBasin")){
+style=OneLevelIn;
+aI("text=Lake Powell News;url=http://news.water-data.com/powell;");
+aI("text=Lake Mead News;url=http://news.water-data.com/mead;");
+aI("text=Lake Havasu News;url=http://news.water-data.com/havasu;");
+aI("text=Lake Mohave News;url=http://news.water-data.com/mohave;");
+aI("text=Lake Pleasant, AZ News;url=http://news.water-data.com/lake_pleasant_az;");
+aI("text=Flaming Gorge Reservoir News;url=http://news.water-data.com/flaming_gorge;");
+aI("text=Lake Navajo News;url=http://news.water-data.com/navajo;");
+aI("text=Blue Mesa Reservoir News;url=http://news.water-data.com/blue_mesa;");
+
+}
+
+with(milonic=new menuname("MissouriRiverBasin")){
+style=OneLevelIn;
+aI("text=Lake Oahe News;url=http://news.water-data.com/oahe;");
+aI("text=Lake McConaughy News;url=http://news.water-data.com/mcconaughy;");
+
+}
+
+with(milonic=new menuname("OtherReports")){
+style=OneLevelIn;
+aI("text=Daily Summary for Entire Basin;url=http://snowpack.water-data.com/uppercolorado/index.php?allsum=1;");
+aI("text=Daily Summary for All Minor Basins;url=http://snowpack.water-data.com/uppercolorado/index.php?showall=1;");
+
+}
+
+with(milonic=new menuname("Snow Data")){
+style=OneLevelIn;
+aI("text=Snowpack Above Lake Powell Database;showmenu=Snowpack;");
+aI("text=Upper Colorado Snow Report Map;url=https://www.usbr.gov/UC_SnowMap/;target=main;");
+aI("text=UC Snowpack Graphs;url=http://graphs.water-data.com/ucsnowpack;");
+
+}
+
+with(milonic=new menuname("Company Info")){
+style=OneLevelIn;
+aI("text=Contact Us;url=http://www.water-data.com/contact.php;");
+
+}
+
+with(milonic=new menuname("OtherLakesWaterways")){
+style=OneLevelIn;
+aI("text=Other Arizona Lakes;showmenu=OtherAZLakes;");
+aI("text=Other California Lakes;url=http://blogs.water-data.com/forumdisplay.php?f=57;");
+aI("text=Other Colorado Lakes;url=http://blogs.water-data.com/forumdisplay.php?f=56;");
+aI("text=Other Utah Lakes;url=http://blogs.water-data.com/forumdisplay.php?f=55;");
+
+}
+
+with(milonic=new menuname("OtherAZLakes")){
+style=OneLevelIn;
+aI("text=Alamo Lake;url=http://blogs.water-data.com/forumdisplay.php?f=48;");
+aI("text=Lake Roosevelt;url=http://blogs.water-data.com/forumdisplay.php?f=50;");
+aI("text=Lake Pleasant;url=http://blogs.water-data.com/forumdisplay.php?f=42;");
+
+}
+
+drawMenus();
+</script>
+</td></tr><tr><td width=160 valign=top "><br><font size=3 color="#FFFFFF"></font><script type="text/javascript"><!--
+			google_ad_client = "pub-0146338466817273";
+			google_alternate_ad_url = "";
+			google_ad_width = 160;
+			google_ad_height = 600;
+			google_ad_format = "160x600_as";
+			google_ad_type = "text_image";
+			google_ad_channel ="";
+			google_color_border = "FFFFFF";
+			google_color_bg = "FFFFFF";
+			google_color_link = "0000FF";
+			google_color_text = "000000";
+			google_color_url = "426C95";
+			//--></script>
+			<script type="text/javascript"
+			  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+			</script><br><font size=3 color="#FFFFFF"></font><script type="text/javascript"><!--
+			google_ad_client = "pub-0146338466817273";
+			google_alternate_ad_url = "";
+			google_ad_width = 160;
+			google_ad_height = 600;
+			google_ad_format = "160x600_as";
+			google_ad_type = "text_image";
+			google_ad_channel ="";
+			google_color_border = "FFFFFF";
+			google_color_bg = "FFFFFF";
+			google_color_link = "0000FF";
+			google_color_text = "000000";
+			google_color_url = "426C95";
+			//--></script>
+			<script type="text/javascript"
+			  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+			</script></td><td width=1 bgcolor="#ffffff"></td><td valign=top><center>
+<center><table width='100%' border=0><tr><td width='20%'></font></center>
+			</td><td width='60%' valign=bottom>
+<center><font size=1>The earliest data is from <a href="?as_of=1963-03-14">Thursday, March 14th, 1963</a><br>
+<font size=1>The most recent data is from <a href="?as_of=2020-01-16">Thursday, January 16th, 2020</a>
+</center></td><td width='20%'><center></font></a></center></td></tr></table><br>
+<center><H2>Min / Max by Year</H2><p>
+<table width=100% border=1><tr>
+					<th bgcolor=#ccddff>YEAR</th>
+					<th bgcolor=#ccddff>MAX ELEVATION</th>
+					<th bgcolor=#ccddff>MIN ELEVATION</th>
+					<th bgcolor=#ccddff>DIFFERENCE</th>
+					<th bgcolor=#ccddff>MAX AIR TEMP</th>
+					<th bgcolor=#ccddff>MIN AIR TEMP</th>
+					<th bgcolor=#ccddff>MAX WATER TEMP</th>
+					<th bgcolor=#ccddff>MIN WATER TEMP</th>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2020">2020</a></b></td>
+					<td><center>3608.73</b></td>
+					<td><center>3606.98</b></td>
+					<td><center>1.75</b></td>
+					<td><center>53.0</b></td>
+					<td><center>0.0</b></td>
+					<td><center>50.0</b></td>
+					<td><center>47.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2019">2019</a></b></td>
+					<td><center>3621.68</b></td>
+					<td><center>3568.51</b></td>
+					<td><center>53.17</b></td>
+					<td><center>104.0</b></td>
+					<td><center>0.0</b></td>
+					<td><center>82.0</b></td>
+					<td><center>45.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2018">2018</a></b></td>
+					<td><center>3622.74</b></td>
+					<td><center>3581.85</b></td>
+					<td><center>40.89</b></td>
+					<td><center>106.0</b></td>
+					<td><center>18.0</b></td>
+					<td><center>80.0</b></td>
+					<td><center>47.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2017">2017</a></b></td>
+					<td><center>3635.80</b></td>
+					<td><center>3593.85</b></td>
+					<td><center>41.95</b></td>
+					<td><center>108.0</b></td>
+					<td><center>21.0</b></td>
+					<td><center>81.0</b></td>
+					<td><center>47.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2016">2016</a></b></td>
+					<td><center>3621.45</b></td>
+					<td><center>3591.14</b></td>
+					<td><center>30.31</b></td>
+					<td><center>109.0</b></td>
+					<td><center>0.0</b></td>
+					<td><center>82.0</b></td>
+					<td><center>47.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2015">2015</a></b></td>
+					<td><center>3614.32</b></td>
+					<td><center>3589.82</b></td>
+					<td><center>24.50</b></td>
+					<td><center>107.0</b></td>
+					<td><center>19.9</b></td>
+					<td><center>81.0</b></td>
+					<td><center>47.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2014">2014</a></b></td>
+					<td><center>3609.72</b></td>
+					<td><center>3574.21</b></td>
+					<td><center>35.51</b></td>
+					<td><center>99.0</b></td>
+					<td><center>21.9</b></td>
+					<td><center>80.0</b></td>
+					<td><center>45.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2013">2013</a></b></td>
+					<td><center>3609.59</b></td>
+					<td><center>3584.43</b></td>
+					<td><center>25.16</b></td>
+					<td><center>99.0</b></td>
+					<td><center>12.0</b></td>
+					<td><center>80.0</b></td>
+					<td><center>43.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2012">2012</a></b></td>
+					<td><center>3639.62</b></td>
+					<td><center>3609.77</b></td>
+					<td><center>29.85</b></td>
+					<td><center>99.0</b></td>
+					<td><center>21.0</b></td>
+					<td><center>81.0</b></td>
+					<td><center>47.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2011">2011</a></b></td>
+					<td><center>3660.90</b></td>
+					<td><center>3609.70</b></td>
+					<td><center>51.20</b></td>
+					<td><center>99.0</b></td>
+					<td><center>1.0</b></td>
+					<td><center>82.0</b></td>
+					<td><center>45.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2010">2010</a></b></td>
+					<td><center>3638.82</b></td>
+					<td><center>3618.62</b></td>
+					<td><center>20.20</b></td>
+					<td><center>106.0</b></td>
+					<td><center>19.0</b></td>
+					<td><center>84.0</b></td>
+					<td><center>48.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2009">2009</a></b></td>
+					<td><center>3642.30</b></td>
+					<td><center>3609.70</b></td>
+					<td><center>32.60</b></td>
+					<td><center>107.1</b></td>
+					<td><center>16.0</b></td>
+					<td><center>80.0</b></td>
+					<td><center>47.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2008">2008</a></b></td>
+					<td><center>3633.72</b></td>
+					<td><center>3588.24</b></td>
+					<td><center>45.48</b></td>
+					<td><center>102.9</b></td>
+					<td><center>15.1</b></td>
+					<td><center>81.0</b></td>
+					<td><center>45.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2007">2007</a></b></td>
+					<td><center>3611.68</b></td>
+					<td><center>3594.64</b></td>
+					<td><center>17.04</b></td>
+					<td><center>106.0</b></td>
+					<td><center>12.9</b></td>
+					<td><center>82.0</b></td>
+					<td><center>45.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2006">2006</a></b></td>
+					<td><center>3610.87</b></td>
+					<td><center>3588.66</b></td>
+					<td><center>22.21</b></td>
+					<td><center>106.0</b></td>
+					<td><center>18.0</b></td>
+					<td><center>83.0</b></td>
+					<td><center>46.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2005">2005</a></b></td>
+					<td><center>3608.38</b></td>
+					<td><center>3555.10</b></td>
+					<td><center>53.28</b></td>
+					<td><center>107.1</b></td>
+					<td><center>15.1</b></td>
+					<td><center>83.0</b></td>
+					<td><center>48.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2004">2004</a></b></td>
+					<td><center>3597.06</b></td>
+					<td><center>3564.42</b></td>
+					<td><center>32.64</b></td>
+					<td><center>102.0</b></td>
+					<td><center>18.0</b></td>
+					<td><center>80.0</b></td>
+					<td><center>45.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2003">2003</a></b></td>
+					<td><center>3619.94</b></td>
+					<td><center>3597.22</b></td>
+					<td><center>22.72</b></td>
+					<td><center>107.1</b></td>
+					<td><center>19.9</b></td>
+					<td><center>83.0</b></td>
+					<td><center>47.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2002">2002</a></b></td>
+					<td><center>3656.08</b></td>
+					<td><center>3620.10</b></td>
+					<td><center>35.98</b></td>
+					<td><center>107.1</b></td>
+					<td><center>17.1</b></td>
+					<td><center>82.0</b></td>
+					<td><center>46.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2001">2001</a></b></td>
+					<td><center>3673.02</b></td>
+					<td><center>3656.17</b></td>
+					<td><center>16.85</b></td>
+					<td><center>102.9</b></td>
+					<td><center>17.1</b></td>
+					<td><center>80.0</b></td>
+					<td><center>46.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=2000">2000</a></b></td>
+					<td><center>3683.40</b></td>
+					<td><center>3669.89</b></td>
+					<td><center>13.51</b></td>
+					<td><center>107.0</b></td>
+					<td><center>17.0</b></td>
+					<td><center>85.0</b></td>
+					<td><center>48.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1999">1999</a></b></td>
+					<td><center>3694.73</b></td>
+					<td><center>3677.20</b></td>
+					<td><center>17.53</b></td>
+					<td><center>110.0</b></td>
+					<td><center>17.0</b></td>
+					<td><center>79.5</b></td>
+					<td><center>50.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1998">1998</a></b></td>
+					<td><center>3697.06</b></td>
+					<td><center>3672.81</b></td>
+					<td><center>24.25</b></td>
+					<td><center>107.0</b></td>
+					<td><center>15.0</b></td>
+					<td><center>82.0</b></td>
+					<td><center>50.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1997">1997</a></b></td>
+					<td><center>3695.09</b></td>
+					<td><center>3663.08</b></td>
+					<td><center>32.01</b></td>
+					<td><center>120.0</b></td>
+					<td><center>18.0</b></td>
+					<td><center>80.5</b></td>
+					<td><center>50.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1996">1996</a></b></td>
+					<td><center>3688.31</b></td>
+					<td><center>3671.79</b></td>
+					<td><center>16.52</b></td>
+					<td><center>107.0</b></td>
+					<td><center>16.0</b></td>
+					<td><center>80.0</b></td>
+					<td><center>52.0</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1995">1995</a></b></td>
+					<td><center>3693.75</b></td>
+					<td><center>3644.59</b></td>
+					<td><center>49.16</b></td>
+					<td><center>115.0</b></td>
+					<td><center>20.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1994">1994</a></b></td>
+					<td><center>3665.75</b></td>
+					<td><center>3650.02</b></td>
+					<td><center>15.73</b></td>
+					<td><center>110.0</b></td>
+					<td><center>19.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1993">1993</a></b></td>
+					<td><center>3668.70</b></td>
+					<td><center>3612.46</b></td>
+					<td><center>56.24</b></td>
+					<td><center>106.0</b></td>
+					<td><center>18.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1992">1992</a></b></td>
+					<td><center>3634.01</b></td>
+					<td><center>3615.91</b></td>
+					<td><center>18.10</b></td>
+					<td><center>105.0</b></td>
+					<td><center>15.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1991">1991</a></b></td>
+					<td><center>3639.02</b></td>
+					<td><center>3624.55</b></td>
+					<td><center>14.47</b></td>
+					<td><center>103.0</b></td>
+					<td><center>12.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1990">1990</a></b></td>
+					<td><center>3658.42</b></td>
+					<td><center>3633.48</b></td>
+					<td><center>24.94</b></td>
+					<td><center>110.0</b></td>
+					<td><center>4.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1989">1989</a></b></td>
+					<td><center>3679.73</b></td>
+					<td><center>3658.46</b></td>
+					<td><center>21.27</b></td>
+					<td><center>109.0</b></td>
+					<td><center>-2.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1988">1988</a></b></td>
+					<td><center>3693.31</b></td>
+					<td><center>3679.76</b></td>
+					<td><center>13.55</b></td>
+					<td><center>106.0</b></td>
+					<td><center>13.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1987">1987</a></b></td>
+					<td><center>3698.47</b></td>
+					<td><center>3677.47</b></td>
+					<td><center>21.00</b></td>
+					<td><center>102.0</b></td>
+					<td><center>12.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1986">1986</a></b></td>
+					<td><center>3700.02</b></td>
+					<td><center>3680.68</b></td>
+					<td><center>19.34</b></td>
+					<td><center>104.0</b></td>
+					<td><center>17.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1985">1985</a></b></td>
+					<td><center>3700.12</b></td>
+					<td><center>3674.82</b></td>
+					<td><center>25.30</b></td>
+					<td><center>106.0</b></td>
+					<td><center>12.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1984">1984</a></b></td>
+					<td><center>3702.46</b></td>
+					<td><center>3672.99</b></td>
+					<td><center>29.47</b></td>
+					<td><center>102.0</b></td>
+					<td><center>17.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1983">1983</a></b></td>
+					<td><center>3708.34</b></td>
+					<td><center>3682.01</b></td>
+					<td><center>26.33</b></td>
+					<td><center>102.0</b></td>
+					<td><center>18.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1982">1982</a></b></td>
+					<td><center>3687.83</b></td>
+					<td><center>3661.89</b></td>
+					<td><center>25.94</b></td>
+					<td><center>103.0</b></td>
+					<td><center>10.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1981">1981</a></b></td>
+					<td><center>3681.38</b></td>
+					<td><center>3667.47</b></td>
+					<td><center>13.91</b></td>
+					<td><center>106.0</b></td>
+					<td><center>21.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1980">1980</a></b></td>
+					<td><center>3700.59</b></td>
+					<td><center>3672.45</b></td>
+					<td><center>28.14</b></td>
+					<td><center>105.0</b></td>
+					<td><center>25.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1979">1979</a></b></td>
+					<td><center>3684.77</b></td>
+					<td><center>3626.93</b></td>
+					<td><center>57.84</b></td>
+					<td><center>106.0</b></td>
+					<td><center>9.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1978">1978</a></b></td>
+					<td><center>3652.75</b></td>
+					<td><center>3622.29</b></td>
+					<td><center>30.46</b></td>
+					<td><center>105.0</b></td>
+					<td><center>5.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1977">1977</a></b></td>
+					<td><center>3655.40</b></td>
+					<td><center>3630.05</b></td>
+					<td><center>25.35</b></td>
+					<td><center>107.0</b></td>
+					<td><center>14.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1976">1976</a></b></td>
+					<td><center>3672.27</b></td>
+					<td><center>3655.31</b></td>
+					<td><center>16.96</b></td>
+					<td><center>106.0</b></td>
+					<td><center>15.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1975">1975</a></b></td>
+					<td><center>3674.93</b></td>
+					<td><center>3645.34</b></td>
+					<td><center>29.59</b></td>
+					<td><center>103.0</b></td>
+					<td><center>16.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1974">1974</a></b></td>
+					<td><center>3667.35</b></td>
+					<td><center>3646.92</b></td>
+					<td><center>20.43</b></td>
+					<td><center>107.0</b></td>
+					<td><center>7.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1973">1973</a></b></td>
+					<td><center>3648.84</b></td>
+					<td><center>3590.60</b></td>
+					<td><center>58.24</b></td>
+					<td><center>107.0</b></td>
+					<td><center>16.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1972">1972</a></b></td>
+					<td><center>3619.71</b></td>
+					<td><center>3603.02</b></td>
+					<td><center>16.69</b></td>
+					<td><center>108.0</b></td>
+					<td><center>15.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1971">1971</a></b></td>
+					<td><center>3622.34</b></td>
+					<td><center>3598.80</b></td>
+					<td><center>23.54</b></td>
+					<td><center>108.0</b></td>
+					<td><center>3.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1970">1970</a></b></td>
+					<td><center>3601.77</b></td>
+					<td><center>3566.62</b></td>
+					<td><center>35.15</b></td>
+					<td><center>108.0</b></td>
+					<td><center>14.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1969">1969</a></b></td>
+					<td><center>3581.18</b></td>
+					<td><center>3539.39</b></td>
+					<td><center>41.79</b></td>
+					<td><center>107.0</b></td>
+					<td><center>18.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1968">1968</a></b></td>
+					<td><center>3550.38</b></td>
+					<td><center>3513.30</b></td>
+					<td><center>37.08</b></td>
+					<td><center>106.0</b></td>
+					<td><center>8.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1967">1967</a></b></td>
+					<td><center>3532.85</b></td>
+					<td><center>3502.23</b></td>
+					<td><center>30.62</b></td>
+					<td><center>106.0</b></td>
+					<td><center>4.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1966">1966</a></b></td>
+					<td><center>3545.68</b></td>
+					<td><center>3521.45</b></td>
+					<td><center>24.23</b></td>
+					<td><center>106.0</b></td>
+					<td><center>11.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1965">1965</a></b></td>
+					<td><center>3534.63</b></td>
+					<td><center>3490.76</b></td>
+					<td><center>43.87</b></td>
+					<td><center>110.0</b></td>
+					<td><center>20.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1964">1964</a></b></td>
+					<td><center>3491.99</b></td>
+					<td><center>3394.50</b></td>
+					<td><center>97.49</b></td>
+					<td><center>107.0</b></td>
+					<td><center>8.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+<tr>
+					<td><center><a href="?annualextr=1963">1963</a></b></td>
+					<td><center>3409.60</b></td>
+					<td><center>3409.00</b></td>
+					<td><center>0.60</b></td>
+					<td><center>106.0</b></td>
+					<td><center>7.0</b></td>
+					<td><center>n/a</b></td>
+					<td><center>n/a</b></td>
+					</tr>
+</table><p><br>
+<center><p><br><font size=4><b>Search DB for more Lake Powell Water Data Facts</b></font>
+<form name="PDCanned" method=post action="">
+<SELECT NAME="canned">
+<OPTION VALUE="AllTime" selected>All Time Records
+<OPTION VALUE="AveY">Averages by Year
+<OPTION VALUE="AveM">Averages by Month
+<OPTION VALUE="MinMaxY">Min/Max by Year
+<OPTION VALUE="TenDates">Data for up to 10 specific dates
+<OPTION VALUE="Common">30 most common measurements
+<OPTION VALUE="Annual">Annual Extremes
+<OPTION VALUE="DailyAvg">Daily Averages (All-Time)
+<OPTION VALUE="DailyAvg2">Daily Averages (Since Filled)
+</SELECT>   
+<input type="submit" value="Get Data" name="GetCannedData">
+</form><p><br></center>
+</center><br><center><font color=blue size=1>Measurements are taken at 11:59 pm of the date listed<br>
+			Temperature data is from Wahweap, AZ<br>Water temperature data is from wayneswords.com*
+			<br>CHANGE represents water elevation change from previous day<p></b></font></center>
+<center><font color=black size=1><b>Units used in each measurement:</b><br>
+				Elevation - Feet above sea level<br>
+				Change - Feet difference over previous measurement<br>
+				Content - Acre Feet<br>
+				Inflow - Acre Feet per day<br>
+				Outflow - Acre Feet per day<br>
+				All Temps - Degrees Farhenheit<br>
+				The Water Year runs from October 1 to September 30 of the next year<br>
+				Acre Feet =  * Flow CFS<br>
+				TP = Total Precipitation<br></font></center>
+<p><br><br><div align=right><font size=1 color=black><i>Page took 0.105 seconds to create!<br>
+Copyright Summit Technologies, Inc.<br>
+Water data courtesy of US Bureau of Reclamation<br>
+*Air temp data is sourced from (Prev 24 Hr Extremes): &nbsp;&nbsp;
+			<a href="" TARGET=_blank> Weather</a><br>
+Weather forecast for <a href="" TARGET=_blank></a><br>
+All data is provisional and subject to review and modification<br>
+<font color="red"><b><a href="" TARGET=_blank>USBR Source Data</a><br>
+
+</td></tr></table><p><br><font size=0 color="000000"><div align=right><i>Copyright Summit Technologies, Inc.<br>1999 - 2020</i></font><br><br><center><font size=6 color=FFFFFF> Water Database<br></font>
+
+</body>
+
+</html>
