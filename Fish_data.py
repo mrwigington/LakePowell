@@ -17,21 +17,23 @@ class Fish():
         #initialize a dictionary or somthing to hold dataframes
         self.dataframes = {}
         #get the fish data
-        input_name = download.download_fish_file()
+        fish_data_path = download.download_fish_file()
         #build the fish data parsar
-        dataframe = pd.read_excel(input_name)
+        fish_dataframe = pd.read_excel(fish_data_path)
         # column_headers = ["FishID","Date", "TREND","Gear", "Species", "Gender", "Length",
         #                   "Mass", "Ktl", "Relative weight", "Maturity", "Age structure",
         #                   "stomach", "gonads", "fat_index", "parasite", "misc 1 text",
         #                   "misc 2 num", "misc 3 text", "misc 4 num", "Site", "KFL"]
         #
         # data_frame.columns = column_headers
-        self.dataframes["fish_data"] = dataframe
+        self.dataframes["fish_data"] = fish_dataframe
 
 
         #get the water data
+        water_data_path =  download.download_water_data()
         #build the water parsar
-
+        water_df = pd.read_csv(water_data_path)
+        self.dataframes['water_data'] = water_df
         # import pdb; pdb.set_trace()
 
 
@@ -39,4 +41,4 @@ class Fish():
         return self.dataframes["fish_data"]
 
     def get_water_data(self):
-        pass
+        return self.dataframes["water_data"]
