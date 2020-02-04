@@ -20,12 +20,24 @@ class Fish():
         fish_data_path = download.download_fish_file()
         #build the fish data parsar
         fish_df = pd.read_excel(fish_data_path)
-        column_headers = ["FishID","Date", "TREND","Gear", "Species", "Gender", "Length",
+        column_headers = ["FishID","Date", "TREND","Gear", "Species", "Sex", "Length",
                           "Mass", "Ktl", "Relative weight", "Maturity", "Age structure",
                           "stomach", "gonads", "fat_index", "parasite", "misc 1 text",
                           "misc 2 num", "misc 3 text", "misc 4 num", "Site", "KFL"]
 
         fish_df.columns = column_headers
+
+        #FishID with errors in dates
+        fish_df = fish_df[fish_df.FishID != 20040355] #year 6468
+        fish_df = fish_df[fish_df.FishID != 20040484] #year 0204
+        fish_df = fish_df[fish_df.FishID != 20100667] #year 0210
+        fish_df = fish_df[fish_df.FishID != 20110269] #year 0211
+
+        #split date into Day, Month, Year columns
+        fish_df['Day'] = pd.DatetimeIndex(fish_df['Date']).day
+        fish_df['Month'] = pd.DatetimeIndex(fish_df['Date']).month
+        fish_df['Year'] = pd.DatetimeIndex(fish_df['Date']).year
+
         self.dataframes["fish_data"] = fish_df
 
 
