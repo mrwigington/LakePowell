@@ -57,6 +57,41 @@ Bad_data_IDs = []
         self.dataframes['water_data'] = water_df
 
 
+def clean_fish_data(self):
+    self.clean_fish_data = {}
+    self.dirty_fish_data = {}
+    clean = self.dataframes["fish_data"]
+    dirty = {}
+
+    current_year = datetime.datetime.now().year()
+    clean = clean[((clean['Year'] >= 1962) & (clean['Year'] <= current_year))]
+    bad_year = clean[(clean['Year'] < 1962) | (clean['Year'] > current_year)]
+    dirty = vertical_stack = pd.concat([dirty, bad_year], axis=0)
+
+    species_list = ["FMS", "LMB", "GSF", "BGL", "BLC", "YBH", "CCF", "BFL", "RSH", "BBH", "STB", "BM,", "OTH", "RLC",
+                    "WAE", "SMB", "CRP", "BCL", "TFS", "RDS", "BLG", "FLM", "CC", "BC", "YGH", "WTC", "GZD", "cct",
+                    "tfs'", "snb", "sj", "sgf", "gh", "gssf", "bgl", "el", "gdf", "gsf", "cat", "amb", "gnf", "wal",
+                    "gsh", "rzb", "gbl", "cpm", "gaf", "gaz", "GLB", "GZDL", "GSDF", "GZC", "RBS"]
+    clean = clean[(clean['Species'].isin(species_list()))]
+    bad_species = clean[~(clean['Species'].isin(species_list()))]
+    dirty = vertical_stack = pd.concat([dirty, bad_species], axis=0)
+
+    clean = clean[(clean['Length'].isdigit())]
+    bad_length = clean[~(clean['Length'].isdigit())]
+    dirty = vertical_stack = pd.concat([dirty, bad_length], axis=0)
+
+    clean = clean[(clean['Mass'].isdigit())]
+    bad_mass = clean[(clean['Mass'].isdigit())]
+    dirty = vertical_stack = pd.concat([dirty, bad_mass], axis=0)
+
+    site_list = ["PB", "RN", "BF", "HA", "KC", "NW", "HC", "CC", "FC", "QC", "GH", "SJ", "WW", "PB", "RP", "SC", "WC",
+                 "AI", "NC", "RC", "PF", "GC", "ES", " s", "U", "EL", "SA"]
+    clean = clean[(clean['Species'].isin(site_list()))]
+    bad_site = clean[~(clean['Species'].isin(site_list()))]
+    dirty = vertical_stack = pd.concat([dirty, bad_site], axis=0)
+    self.clean_fish_data = clean
+    self.dirty_fish_data = dirty
+    
     def get_fish_data(self):
         return self.dataframes["fish_data"]
 
