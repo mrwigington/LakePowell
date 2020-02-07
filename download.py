@@ -2,41 +2,63 @@ import os
 import requests
 import getpass
 import bs4
+import csv
+from bs4 import BeautifulSoup
 
-def download_file(download_to_path="data/datafile", url_file_path="data/url.txt")
-
-    # url_file = open(url_file_path, 'r')
-    # url = url_file.read().strip()
-    # url_file.close()
-
-    # password_file = open(password_file_path, 'r')
-    # password = password_file.read().strip()
-    # password_file.close()
+def download_fish_file(download_to_path="data/fishdata"):
 
 
-    url = "https://byu.box.com/shared/static/yqvf7vxf2glisxj1xkf4cape1lkjgung.txt"
+    url = "https://byu.box.com/shared/static/b9j0opllkxhvelg0ps365ww0xxcihydp.xlsx"
 
 
-    for i in range(2):
+    response = requests.get(url, allow_redirects=True)
 
-        with requests.Session() as session: # Use a session object to save cookies
-            # Construct the urls for our GET and POST requests
-            get_url = url
-            post_url = get_url.replace("https://byu.box.com/shared", "https://byu.app.box.com/public")
-
-            # Send initial GET request and parse the request token out of the response
-            get_response = session.get(get_url)
-            soup = bs4.BeautifulSoup(get_response.text, "html.parser")
-            token_tag = soup.find(id="request_token")
-            token = token_tag.get("value")
-
-            # Send a POST request, with the password and token, to get the data
-            payload = {
-                'password': password,
-                'request_token': token}
-            response = session.post(post_url, data=payload)
-
-            with open(download_to_path, 'wb') as dest:
-                dest.write(response.content)
+    with open(download_to_path, 'wb') as dest:
+        dest.write(response.content)
 
     return download_to_path
+
+def download_water_data():
+    request_data = {}
+
+    #requests the data from the Min Max drop menu
+    request_data["canned"] = "MinMaxY"
+    request_data["GetCannedData"] = "Get Data"
+
+    r = requests.post("http://lakepowell.water-data.com/index2.php", request_data)
+
+    #Read then cache the data so it doesn't do as many requests from the webpage
+    # with open("cached_min_max.html", 'w') as f:
+    #     f.write(r.text)
+
+    # with open("cached_min_max.html") as f:
+    #     text = f.read()
+
+    soup = BeautifulSoup(r.text, features="lxml")
+
+    found_items = soup(text="Min / Max by Year")
+    parent = list(found_items)[0].parent
+    table = parent.findNext('table')
+    rows = table.findAll("tr")
+
+    header = rows[0]
+    data = rows[1:-1]#all_but first and last row
+
+    text_headers = []
+    for column in header.findAll("th"):
+        text_headers.append(column.text)
+
+    text_data = []
+    min_max = "data/year_min_max.csv" #file name to stor min/max data
+
+    #read the text data into a csv
+    with open(min_max, 'w', newline='') as myfile:
+         wr = csv.writer(myfile,  quoting=csv.QUOTE_ALL)
+         wr.writerow(text_headers)
+
+         for row in data:
+             text_row = []
+             for column in row.findAll("td"):
+                 text_row.append(column.text)
+             wr.writerow(text_row)
+    return min_max
