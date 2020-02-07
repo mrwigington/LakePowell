@@ -38,15 +38,8 @@ class Fish():
         fish_df['Month'] = pd.DatetimeIndex(fish_df['Date']).month
         fish_df['Year'] = pd.DatetimeIndex(fish_df['Date']).year
 
-<<<<<<< HEAD
-data_frame.columns = column_headers
+        data_frame.columns = column_headers
 
-#anything to prvent combinations
-#tag in list of fish ID's that we will ignore
-#want to tag things that don't fit correctly
-
-Bad_data_IDs = []
-=======
         self.dataframes["fish_data"] = fish_df
 
 
@@ -91,10 +84,9 @@ def clean_fish_data(self):
     dirty = vertical_stack = pd.concat([dirty, bad_site], axis=0)
     self.clean_fish_data = clean
     self.dirty_fish_data = dirty
-    
+
     def get_fish_data(self):
         return self.dataframes["fish_data"]
 
     def get_water_data(self):
         return self.dataframes["water_data"]
->>>>>>> 62284a0363309fad3361d81508333f8b7a77a653
