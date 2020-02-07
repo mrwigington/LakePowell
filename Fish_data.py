@@ -22,3 +22,9 @@ column_headers = ["FishID","Date", "TREND","Gear", "Species", "Gender", "Length"
                   "misc 2 num", "misc 3 text", "misc 4 num", "Site", "KFL"]
 
 data_frame.columns = column_headers
+
+#anything to prvent combinations
+#tag in list of fish ID's that we will ignore
+#want to tag things that don't fit correctly
+
+Bad_data_IDs = []
