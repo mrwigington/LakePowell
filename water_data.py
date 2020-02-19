@@ -1,52 +1,72 @@
-import requests
+# This file was used to pull all the water data from http://lakepowell.water-data.com/
+# which was upladed to box. Don't use this to redownload all the data because it
+# has to make a bunch of post requests from the website
 
+import requests
+from datetime import date
+import pandas as pd
 from bs4 import BeautifulSoup
+
+def pull_data(request_data):
+    r = requests.post("http://lakepowell.water-data.com/index2.php", request_data)
+
+    soup = BeautifulSoup(r.text, features="lxml")
+    found_items = soup(text="Water Data for Selected Dates")
+    parent = list(found_items)[0].parent
+    table = parent.findNext('table')
+    rows = table.findAll("tr")
+
+    header = rows[0]
+    data = rows[1:-1]#all_but first and last row
+
+    text_headers = []
+    for column in header.findAll("th"):
+        text_headers.append(column.text)
+
+    text_data = []
+    for row in data:
+        text_row = []
+        for column in row.findAll("td"):
+            text_row.append(column.text)
+        text_data.append(text_row)
+
+    return text_headers,  text_data
 
 
 request_data = {}
-
-# for i in range(1,11):
-#     request_data["datemonth{}".format(i)]=""
-#     request_data["dateday{}".format(i)]=""
-#     request_data["dateyear{}".format(i)]=""
-
-#Can request up to 10 dates. I haven't tested the api but maybe more?
+headers = []
+all_data = [[None, None, None, None, None, None, None, None]]
 
 request_data["Get10DateData"] = "Get+Data"
-request_data["datemonth1"] = "January"
-request_data["dateday1"] = "01"
-request_data["dateyear1"] = "2020"
+calendar = {"January" : list(range(1, 31+1)) , "February" : list(range(1, 29+1)),
+            "March" : list(range(1, 31+1)), "April" : list(range(1, 30+1)),
+            "May" : list(range(1, 31+1)), "June" : list(range(1, 30+1)),
+            "July": list(range(1, 31+1)), "August" : list(range(1, 31+1)),
+            "September" : list(range(1, 30+1)), "October" : list(range(1, 31+1)),
+            "November" : list(range(1, 30+1)), "December": list(range(1, 31+1))}
 
-request_data["datemonth2"] = "January"
-request_data["dateday2"] = "02"
-request_data["dateyear2"] = "2020"
+req_num = 0
+cur_year = date.today().year
+start_year = 1963
+for year in range(start_year, int(cur_year) + 1):
+# for year in range(1964, 1966):
+    print(year)
+    for month in calendar:
+        days = calendar[month]
 
-r = requests.post("http://lakepowell.water-data.com/index2.php", request_data)
+        for i in days:
+            request_data["datemonth" + str(req_num)] = month
+            request_data["dateday" + str(req_num)] = str(i)
+            request_data["dateyear" + str(req_num)] = year
+            req_num = req_num + 1
 
-soup = BeautifulSoup(r.text, features="lxml")
+            if req_num == 9:
+                req_num = 0
+                headers, data = pull_data(request_data)
+                all_data.extend(data)
+                request_data.clear()
+                request_data["Get10DateData"] = "Get+Data"
 
+df = pd.DataFrame.from_records(all_data, columns=headers)
 
-found_items = soup(text="Water Data for Selected Dates")
-
-parent = list(found_items)[0].parent
-
-table = parent.findNext('table')
-
-rows = table.findAll("tr")
-
-header = rows[0]
-data = rows[1:-1]#all_but first and last row
-
-text_headers = []
-for column in header.findAll("th"):
-    text_headers.append(column.text)
-
-text_data = []
-for row in data:
-    text_row = []
-    for column in row.findAll("td"):
-        text_row.append(column.text)
-    text_data.append(text_row)
-
-print(text_headers)
-print(text_data)
+df.to_csv("lake_powell_conditions.csv")
