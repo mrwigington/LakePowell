@@ -12,11 +12,13 @@ from scipy.stats.stats import pearsonr
 #pull the water levels
 #find corelation
 def cor_min_height(fish_data, water_data):
-    corelation = []
+    min_hight = water_data["MIN ELEVATION"]
+    corelation = pearsonr(fish_data, water_data)
     return corelation
 
 def cor_max_height(fish_data, water_data):
-    corelation = []
+    max_height = water_data["MAX ELEVATION"]
+    corelation = pearsonr(fish_data,max_height)
     return corelation
 
 def cor_ave_depth(fish_data, water_data):
@@ -24,7 +26,8 @@ def cor_ave_depth(fish_data, water_data):
     return corelation
 
 def cor_change_height(fish_data, water_data):
-    corelation = []
+    change_height = water_data["DIFFERENCE"]
+    corelation = pearsonr(fish_data, change_height)
     return corelation
 
 #additinal funciton that will find best match for a set range of years
