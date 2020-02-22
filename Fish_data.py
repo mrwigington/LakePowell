@@ -17,7 +17,8 @@ class Fish():
         #initialize a dictionary or somthing to hold dataframes
         self.dataframes = {}
         #get the fish data
-        fish_data_path = download.download_fish_file()
+        # fish_data_path = download.download_fish_file()
+        fish_data_path = "data/fishdata"
         #build the fish data parsar
         fish_df = pd.read_excel(fish_data_path)
         column_headers = ["FishID","Date", "TREND","Gear", "Species", "Sex", "Length",
@@ -44,9 +45,24 @@ class Fish():
 
 
         #get the water data
-        water_data_path =  download.download_water_data()
+        # water_data_path =  download.download_water_data()
+        water_data_path =  "data/water_data"
+
         #build the water parsar
         water_df = pd.read_csv(water_data_path)
+
+        new = water_df["DATE MEASURED"].str.split(r",\s|\s", n = 3, expand = True)
+        #------------------- convert month to digit
+        months = {'Jan':1, 'Feb':2, 'Mar':3, 'Apr':4, 'May':5, 'Jun':6,
+                    'Jul':7, 'Aug':8, 'Sep':9, 'Oct':10, 'Nov':11, 'Dec':12}
+        df_months = new[1]
+        for i in range(0, len(df_months)):
+            df_months[i] = months.get(df_months[i])
+        #---------------------------------------------
+        water_df["MONTH"]= df_months
+        water_df["DAY"]= new[2]
+        water_df["YEAR"]= new[3]
+
         self.dataframes['water_data'] = water_df
 
 
