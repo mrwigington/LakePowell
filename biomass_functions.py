@@ -15,8 +15,6 @@ def calc_biomass_average(data):
     size = len(weights)
     biomass = total_weight/size
     #return aveerage biomass
-    #possible return total_biomass
-    #make table with both?
     return biomass
 
 #def biomass function that takes in the whoel table and pulls out values
