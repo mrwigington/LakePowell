@@ -22,7 +22,7 @@ class Fish():
         #build the fish data parsar
         fish_df = pd.read_excel(fish_data_path)
         column_headers = ["FishID","Date", "TREND","Gear", "Species", "Sex", "Length",
-                          "Mass", "Ktl", "Relative weight", "Maturity", "Age structure",
+                          "Mass", "Ktl", "Weight", "Maturity", "Age structure",
                           "stomach", "gonads", "fat_index", "parasite", "misc 1 text",
                           "misc 2 num", "misc 3 text", "misc 4 num", "Site", "KFL"]
 
