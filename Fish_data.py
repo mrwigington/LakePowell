@@ -45,9 +45,9 @@ class Fish():
             df_months[i] = months.get(df_months[i])
         #--------------------------------------------------------------
 
-        water_df["MONTH"]= df_months
-        water_df["DAY"]= new[2]
-        water_df["YEAR"]= new[3]
+        water_df["MONTH"]= df_months.astype(int)
+        water_df["DAY"]= new[2].astype(int)
+        water_df["YEAR"]= new[3].astype(int)
 
         self.dataframes['water_data'] = water_df
 
