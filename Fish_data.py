@@ -7,9 +7,14 @@ import cleaner
 
 class Fish():
     def __init__(self):
+        #Download the data
+        self.download()
+
         #initialize a dictionary or somthing to hold dataframes
         self.dataframes = {}
         #+++++++++++++++++++++++++++++++++++++++++++get and parse the fish data ++++++++++++++++++++++++++++++++++++++++++++++++++
+        download_msg = "Cleaning fish data . . ."
+        print(download_msg, end='\r')
         fish_data_path = "data/fishdata"
         #build the fish data parsar
         fish_df = pd.read_excel(fish_data_path)
@@ -31,8 +36,12 @@ class Fish():
         fish_df['Year'] = pd.DatetimeIndex(fish_df['Date']).year
 
         self.dataframes["fish_data"] = fish_df
+        print(" " * len(download_msg), end='\r') # Erase the loading message
+
 
         #++++++++++++++++++++++++++++++++++++++++++get and parse the water data +++++++++++++++++++++++++++++++++++++++++++++++++++++
+        download_msg = "Cleaning water data . . ."
+        print(download_msg, end='\r')
         water_data_path =  "data/water_data"
         water_df = pd.read_csv(water_data_path)
 
@@ -51,6 +60,10 @@ class Fish():
         water_df["YEAR"]= new[3].astype(int)
 
         self.dataframes['water_data'] = water_df
+        print(" " * len(download_msg), end='\r') # Erase the loading message
+
+        download_msg = "The data files have been downloaded and cleaned. To access the data call get_fish_data() and get_water_data()."
+        print(download_msg, end='\r')
 
     def download(self):
         download_msg = "Downloading fish data . . ."
@@ -58,15 +71,11 @@ class Fish():
         fish_data_path = download.download_fish_file()
         print(" " * len(download_msg), end='\r') # Erase the downloading message
 
-        download_msg = "Downloading fish data . . ."
-        fish_data_path = download.download_fish_file()
+        download_msg = "Downloading water data . . ."
         water_data_path = download.download_water_data()
         print(" " * len(download_msg), end='\r') # Erase the downloading message
 
 
-
-    def load_data():
-        pass
 
 
     def get_fish_data(self):
