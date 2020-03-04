@@ -17,7 +17,7 @@ class Data():
         print(download_msg, end='\r')
         fish_data_path = "lakepowell/data/fish_data"
         #build the fish data parsar
-        fish_df = pd.read_excel(fish_data_path)
+        fish_df = pd.read_excel(get_fishdata_path())
         column_headers = ["FishID","Date", "TREND","Gear", "Species", "Sex", "Length",
                           "Mass", "Ktl", "Weight", "Maturity", "Age structure",
                           "stomach", "gonads", "fat_index", "parasite", "misc 1 text",
@@ -43,7 +43,7 @@ class Data():
         download_msg = "Cleaning water data . . ."
         print(download_msg, end='\r')
         water_data_path =  "lakepowell/data/water_data"
-        water_df = pd.read_csv(water_data_path)
+        water_df = pd.read_csv(get_waterdata_path())
 
         new = water_df["DATE MEASURED"].str.split(r",\s|\s", n = 3, expand = True)
 
