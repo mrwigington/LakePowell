@@ -8,7 +8,13 @@ from .join import range_join, join_by_month_or_year
 class Data():
     def __init__(self):
         #Download the data
+        ts1 = time.time()
+        print(0)
+
         self.download()
+
+        ts2 = time.time()
+        print(ts2 - ts1)
 
         #initialize a dictionary or somthing to hold dataframes
         self.dataframes = {}
@@ -35,7 +41,15 @@ class Data():
         fish_df['Month'] = pd.DatetimeIndex(fish_df['Date']).month
         fish_df['Year'] = pd.DatetimeIndex(fish_df['Date']).year
 
+        #Categorize fish data into UP and LO lakepowell
+        site_loc = {'GH':'UP', 'WW':'LO', 'SJ':'UP', 'BF':'UP', 'PB':'LO',
+                        'RN':'UP', 'WC':'LO', 'AT':'LO', 'HA':'UP','NW':'LO',
+                        'HC':'UP', 'CR':'LO', 'GB':'UP', 'DM':'LO', 'LC':'LO',
+                        'NK':'UP', 'AI':'LO', 'RC':'UP', 'HI':'UP', 'KC':'UP'}
+        fish_df['Location']= fish_df['Site'].map(site_loc)
+
         self.dataframes["fish_data"] = fish_df
+
         print(" " * len(download_msg), end='\r') # Erase the loading message
 
 
