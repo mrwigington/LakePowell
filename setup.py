@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name = "lakepowell",
-    version="0.1.1",
+    version="0.1.2",
     author="lakepowellapi",
     author_email="lakepowellapi@gmail.com",
     description="lake powell Python package",
