@@ -2,6 +2,7 @@ import math
 import pandas as pd
 from datetime import date
 import numpy as np
+import time
 
 class Cleaner():
     # initialize filter object with pandas data frame
@@ -26,6 +27,10 @@ class Cleaner():
         self.fish_df['Site'] = self.fish_df['Site'].str.upper()
         self.fish_df['Gear'] = self.fish_df['Gear'].str.upper()
         self.fish_df['Sex'] = self.fish_df['Sex'].str.upper()
+        self.fish_df['Species'] = self.fish_df['Species'].str.replace(" ", "")
+        self.fish_df['Site'] = self.fish_df['Site'].str.replace(" ", "")
+        self.fish_df['Gear'] = self.fish_df['Gear'].str.replace(" ", "")
+        self.fish_df['Sex'] = self.fish_df['Sex'].str.replace(" ", "")
 
     def clean_fish_data(self, date = True, mass = True, length = True, species = True,
                         site = True, gear = True, sex = True):
@@ -55,6 +60,8 @@ class Cleaner():
 
         # print(self.dirty_fish_id)
         # print(pd.DataFrame.from_records(self.dirty_fish))
+        # print(len(self.dirty_idx))
+
         return self.fish_df.drop(self.dirty_idx)
 
     def check_date(self, i):
@@ -111,6 +118,8 @@ class Cleaner():
 
     def check_site(self, i):
         site = self.fish_df["Site"][i]
+        valid_site = ['GH', 'WW', 'SJ', 'BF', 'PB', 'RN', 'WC', 'AT', 'HA','NW',
+                        'HC', 'CR', 'GB', 'DM', 'LC', 'NK', 'AI', 'RC', 'HI', 'KC']
         valid_site = ["GH", "RN", "SJ", "WW", "BF", "PB", "KC", "NW", "HA",
                             "PF", "HC", "WC", "CC", "SC", "DM"]
 
