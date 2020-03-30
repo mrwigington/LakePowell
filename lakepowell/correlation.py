@@ -5,13 +5,16 @@ from scipy.stats.stats import pearsonr
 
 
 def summarize_cpue(species, biotic, timeframe, auto):
-        # Generates the Catch per Unit Effort (CPUE). 
-        # 'species' is the three letter acronym for the species of interest.
-        # 'biotic' is one of the five options for understanding the amount of fish caught.
-        # ['individual', 'ave_len', 'tot_len, 'ave_mass', 'tot_mass']
-        # 'timeframe' is the period over which the CPUE should be summarized.
-        # ['year', 'month']
-        # This function returns a panda (sometimes multilevel) with one column, the CPUE.
+  """
+  Generates the Catch per Unit Effort (CPUE). 
+        
+  Parameters:
+    species (str): The three letter acronym for the species of interest.
+    biotic (str): One of the five options for understanding the amount of fish caught. ('individual', 'ave_len', 'tot_len, 'ave_mass', or 'tot_mass'
+    timeframe (str): The period over which the data should be summarized. ('year' or 'month')
+  Returns:
+    (Dataframe) This function returns a panda (sometimes multilevel) with one column, the CPUE.
+  """
   fish_data = data.get_fish_data()
   species_df = fish_data[fish_data['Species'] == species]
   allowed_weight_species= ['LMB', 'STB']  # List of which Species have mass data
@@ -85,10 +88,16 @@ def summarize_cpue(species, biotic, timeframe, auto):
   return pd.DataFrame(CPUE, columns =['CPUE'])
 
 def summarize_water(abiotic, timeframe):
-  # 'abiotic' - string - the abbreviation indicating the desired method for measuring "What is the water like"
-  # ['diff_level', 'max_level', 'min_level', 'ave_level', 'max_temp', 'min_temp']
-  # 'timeframe' - string - the period for which the data should be summarized
-  # Returns: grouped water data into functional spans of time based on 'timeframe' in a dataframe
+  """
+  Summarizes water data.
+        
+  Parameters:
+    abiotic (str): The abbreviation indicating the desired method for measuring "What is the water like" ('diff_level', 'max_level', 'min_level', 'ave_level', 'max_temp', or 'min_temp')
+    timeframe (str): The period over which the data should be summarized. ('year' or 'month')
+  Returns:
+    (Dataframe) This function returns water data grouped into functional spans of time based on 'timeframe' in a dataframe.
+  """
+
   water_data = data.get_water_data()
   levels = None 
     # Set the depth at which to group the water data based on 'timeframe'
@@ -125,14 +134,18 @@ def summarize_water(abiotic, timeframe):
   return water_data
 
 def abiotic_biotic_corr(species, biotic, abiotic, timeframe = 'year', lag_years = [0,1,2,3,4,5,10], auto = False):
-  # Arguments: 'species' - string - the one species of interest
-  # 'biotic' - string - the abbreviation indicating the desired method for measuring "How much fish"
-  # 'abiotic' - string - the abbreviation indicating the desired method for measuring "What is the water like"
-  # 'timeframe' - string - the period for which the data should be summarized
-  # 'lag_years' - list of ints - the list of which delays (in years) might have significant impact on the biotic measure
-  # Returns: a pearson correlation table with pandas.dataframe.corr. 
-  # The first column is the only one of interest as it compares 
-  # the biologic data with abiotic data from that year and previous years.
+  """
+  Calculate's Pearson's R for correlations between the biotic data with the abiotic data from previous years.
+        
+  Parameters:
+    species (str): The three letter acronym for the species of interest.
+    biotic (str): One of the five options for understanding the amount of fish caught. ('individual', 'ave_len', 'tot_len, 'ave_mass', or 'tot_mass'
+    abiotic (str): The abbreviation indicating the desired method for measuring "What is the water like" ('diff_level', 'max_level', 'min_level', 'ave_level', 'max_temp', or 'min_temp')
+    timeframe (str): The period over which the data should be summarized. ('year' or 'month')
+    lag_years (list(int)): the list of which delays (in years) might have significant impact on the biotic measure
+  Returns:
+    (Dataframe) A pearson correlation table with pandas.dataframe.corr. The first column is the only one of interest as it compares the biologic data with abiotic data from that year and previous years.
+  """
 
   import pandas as pd
   # TODO check on species 
