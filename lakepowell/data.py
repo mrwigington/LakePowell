@@ -226,11 +226,13 @@ class Data():
             elif key in Gear_abv:
                 G_Type = G_Type + Gear_abv[key]
                 return(G_Type)
-            else:
+            elif key in Site_abv:
                 Site = Site + Site_abv[key]
                 return(Site)
-        else:
-            return("Error, Invalid Abriviation")
+            else:
+                return("Error, Invalid Abriviation")
+        
+        return("Error, Invalid Abriviation")
 
 
             
