@@ -30,7 +30,7 @@ def calc_catch_per_unit_effort(data,time, bio_fac):
     #have this as a sencondary caracterstic based on what gets imported
 
     #time period
-    # so sort out teh data based on what they send
+    # so sort out the data based on what they send
     if time == 'year':
         pass
     elif time == 'month':
@@ -58,7 +58,7 @@ def calc_catch_per_unit_effort(data,time, bio_fac):
     else:
         #error, return error message?
         pass
-    #then oull the variable they want
+    #then pull the variable they want
     #divide by number of sites in colection
     sites = data['Site']
     total_sites = len(set(sites))
