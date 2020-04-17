@@ -8,14 +8,8 @@ from .join import range_join, join_by_month_or_year
 class Data():
     def __init__(self):
         #Download the data
-        ts1 = time.time()
-        print(0)
-
         self.download()
-
         ts2 = time.time()
-        print(ts2 - ts1)
-
         #initialize a dictionary or somthing to hold dataframes
         self.dataframes = {}
         #+++++++++++++++++++++++++++++++++++++++++++get and parse the fish data ++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -25,7 +19,7 @@ class Data():
         #build the fish data parsar
         fish_df = pd.read_excel(get_fishdata_path())
         column_headers = ["FishID","Date", "TREND","Gear", "Species", "Sex", "Length",
-                          "Mass", "Ktl", "Weight", "Maturity", "Age structure",
+                          "Mass", "Ktl", "Relative Weight", "Maturity", "Age structure",
                           "stomach", "gonads", "fat_index", "parasite", "misc 1 text",
                           "misc 2 num", "misc 3 text", "misc 4 num", "Site", "KFL"]
 
