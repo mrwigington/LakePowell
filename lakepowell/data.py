@@ -99,3 +99,135 @@ class Data():
     def join_by_month(self, fish_data, water_data):
         df = join_by_month_or_year(fish_data, water_data, time_unit="month")
         return df
+    
+    def find_abrv(self, key):
+        common_names =  {"BLG": "Bluegill Sunfish",
+                   "GSF": "Green Sunfish", 
+                   "STB": "Striped Bass", 
+                   "SMB": "Smallmouth Bass", 
+                   "LMB": "Largemouth Bass", 
+                   "WAE": "Walleye",  
+                   "BLC": "Black Crappie",
+                   "CCF": "Channel Catfish", 
+                   "TFS": "Threadfin Shad",
+                   "GZD": "Gizzard Shad", 
+                   "CRP": "Common Carp?", 
+                   "RBT": "Rainbow Trout", 
+                   "OTH": "Other?",
+                   "RZB": "Razorback Sucker??", 
+                   "YBH": "Yellow Bullhead Carp????",
+                   "FMS": "FMS", 
+                   "RSH": "RSH",  
+                   "WTC": "WTC", 
+                   "BGL": "More Blue Gill??????"}
+
+        sci_names={"BLG": "Lepomis macrochirus",
+                   "GSF": "Lepomis cyanellus", 
+                   "STB": "Morone saxatilis", 
+                   "SMB": "Micropterus dolomieu", 
+                   "LMB": "Micropterus salmoides", 
+                   "WAE": "Sander vitreus",  
+                   "BLC": "Pomoxis nigromaculatus",
+                   "CCF": "Ictalurus punctatus", 
+                   "TFS": "Dorosoma petenense",
+                   "GZD": "Dorosoma cepedianum", 
+                   "CRP": "Cyprinus carpio", 
+                   "RBT": "Oncorhynchus mykiss", 
+                   "OTH": "Other?",
+                   "RZB": "Xyrauchen texanus", 
+                   "YBH": "Ameiurus natalis ",
+                   "FMS": "FMS", 
+                   "RSH": "RSH",  
+                   "WTC": "WTC", 
+                   "BGL": "More Lepomis macrochirus??????"}
+
+        Gear_abv = {"EL": "Electrofishing",
+            "GN":"Gill-nets",
+            "AN": "AN",
+            "CR": "CR",
+            "SN": "SN",
+            "GH": "Gill-net miss-type??",
+            "BN": "Gill-net miss-type?",
+            "FL": "FL",
+            "SJ":"SJ",
+            "GM":"Gill-net miss-type?",
+            "ERL":"Electrofishign miss-type?",
+            "GB":"Gill-net miss-type?",
+            "GBN":"Gill-net miss-type?",
+            "125":"125",
+            "EEL":"Electrofishing miss-type?",
+            "El;": "Electrofishing miss-type?"}
+
+        Site_abv = {"GH": "Good Hope",
+            "QC":"QC",
+            "FC":"Farley Canyon",
+            "G":"G",
+            "GD":"GD",
+            "RH":"RH",
+            "SA":"SA",
+            "RP":"RP",
+            "AL":"AL",
+            "ES":"Escalante",
+            "U":"U",
+            "RN": "Rincon",
+            "SJ": "San Juan",
+            "WW": "Wahweap",
+            "BF": "BullFrog",
+            "PB": "Padre Bay",
+            "KC":"Knoll Canyon",
+            "NW": "Norther Wahweap",
+            "HA": "Halls",
+            "PF": "PF",
+            "HC":"Halls Creek/ Halls Crossing",
+            "WC":"Warm Creek",
+            "CC": "Castle Creek/ Coper Canyon",
+            "SC":"Stanton Creek",
+            "DM":"Dangling Rope Marina",
+            "HI":"Hite",
+            "LC":"Last Chance",
+            "NC":"Navajo Canyon",
+            "EM":"EM",
+            "AT": "Antelope",
+            "FD":"FD",
+            "GB":"Good Hope Bay",
+            "GP":"GP",
+            "RC":"Red Canyon",
+            "GC":"Glen Canyon",
+            "CR":"Castle Rock",
+            "NK":"Neskahi",
+            "S":"Stateline",
+            "NV":"Navajo Canyon",
+            "GG":"GG",
+            "QN":"QN",
+            "GN":"GN",
+            "EL":"EL"}
+        #edge case if it's in dictionary or not
+        size = len(key)
+        
+        if size == 3 and key in common_names:
+            #look in species
+            C_name = "Common Name is: " + common_names[key]
+            S_name = "Scientific Name is: " + sci_names[key]
+            return(C_name, S_name)
+        elif size ==2:
+            #look in gear/ location
+            G_Type = "Gear Used is: "
+            Site = "Site is: "
+            if key in Gear_abv and key in Site_abv:
+                G_Type = G_Type + Gear_abv[key]
+                Site = Site + Site_abv[key]
+                return(G_Type, Site)
+            elif key in Gear_abv:
+                G_Type = G_Type + Gear_abv[key]
+                return(G_Type)
+            elif key in Site_abv:
+                Site = Site + Site_abv[key]
+                return(Site)
+            else:
+                return("Error, Invalid Abriviation")
+        
+        return("Error, Invalid Abriviation")
+
+
+            
+        
