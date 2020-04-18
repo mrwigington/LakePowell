@@ -336,35 +336,77 @@ class Operations():
 
     #########################Filter Functions#####################################
     def conditional_range(df, con_col, con_var, num_col, min, max):
+        """
+        Filters specific ranges of numerical variables based on categorical variables in the data set.
+
+        Parameters:
+            df (Pandas.DataFrame): The dataframe to be filtered.
+            con_col (str): The categorical column in the dataframe that contains the conditional variable.
+            con_var (str): The condition variable found in the categorical column that you want to filter based on.
+            num_col (str): The numerical column that you are going to filter between the min and max for the given condition.
+            min (str): The minimum acceptable value of the numerical column for the conditional variable.
+            max (str): The maximum acceptable value of the numerical column for the conditional variable.
+        Returns:
+            (Dataframe) The new filtered dataframe.
+        """
         for index,row in df.iterrows():
             if row[con_col] == con_var:
                 if not (row[num_col] >= min) and not(row[num_col] <= max):
                     df.drop(index, inplace=True)
 
     def betweenDates(df, d1, m1, y1, d2, m2, y2):
+        """
+        Filters out all data that is not between the given dates
+
+        Parameters:
+            df (Pandas.DataFrame): The dataframe to be filtered.
+            d1 (int): Day of start date.
+            m1 (int): Month of start date.
+            y1 (int): Year of start date.
+            d2 (int): Day of end date.
+            m2 (int): Month of end date.
+            y2 (int): Year of end date.
+        Returns:
+            (Dataframe) The new filtered data frame.
+        """
         df = df[(df.Year >= y1) & (df.Year <= y2)]
         df = df[(df.Month >= m1) & (df.Day >= d1)]
         df = df[(df.Month <= m2) & (df.Day <= d2)]
 
     ############################New CPUE Functions###################################
-    #count fish caught each day in each sub group (trips not across days)
     def collec_fish_count(self, fish_df):
-      layers = ['Year', 'Location', 'Site', 'Gear', 'Month', 'Day']
-      feature = 'Length'
-      calcs = ['count']
-      titles = ['Fish Count']
+        """
+        Subgroups the fish dataframe into collections and counts the fish caught in each of those collections.
 
-      grouped_multiple = fish_df.groupby(layers).agg({feature: calcs})
-      grouped_multiple.columns = titles
-      grouped_multiple = grouped_multiple.reset_index()
+        Parameters:
+            fish_df (Pandas.DataFrame): The fish dataframe to count trips in. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day'.
+        Returns:
+            (Dataframe) The fish dataframe summarized by collection with the number of fish caught each collection.
+        """
+        layers = ['Year', 'Location', 'Site', 'Gear', 'Month', 'Day']
+        feature = 'Length'
+        calcs = ['count']
+        titles = ['Fish Count']
 
-      fish_sum = grouped_multiple
-      fish_sum = fish_sum[fish_sum['Gear'].isin(['EL', 'GN'])]
-      return fish_sum
+        grouped_multiple = fish_df.groupby(layers).agg({feature: calcs})
+        grouped_multiple.columns = titles
+        grouped_multiple = grouped_multiple.reset_index()
 
-      #Assign trip ids that are connected to the previus trip by the buffer of days
+        fish_sum = grouped_multiple
+        fish_sum = fish_sum[fish_sum['Gear'].isin(['EL', 'GN'])]
+        return fish_sum
+
     #Assign trip ids that are connected to the previus trip by the buffer of days
     def assign_trip_ids(self, fish_sum, buffer):
+        """
+        Assigns a column of trips to a summary collection dataframe as produced by collec_fish_count()
+
+        Parameters:
+            fish_sum (Pandas.DataFrame): The fish dataframe summarized by collections. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day'.
+            buffer (int): The number of days that can occur between collections while still including them in the same trip.
+        Returns:
+            (Dataframe) The fish collection summary table with addition of columns ids for each trip and a column that numbers the collections in each trip.
+        """
         trip_id = 0
         collec_num = 1
         next_month = {1:2, 2:3, 3:4, 4:5, 6:7, 7:8, 8:9, 10:11, 11:12, 12:1}
@@ -445,6 +487,15 @@ class Operations():
 
     #remove trips that occur accross on a single day and caught less than cutoff number off fish
     def rem_one_collec_gn_trips(self, fish_sum, cutoff):
+        """
+        Removes gn net trips that only have one collection and caught less than the cutoff of fish.
+
+        Parameters:
+            fish_sum (Pandas.DataFrame): The fish dataframe summarized by collections with trip ids. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day', 'TripID', 'Fish Count'.
+            cutoff (int): The number of fish caught in a single collection trip that are considerd too few be an actual trip.
+        Returns:
+            (Dataframe) The trip summary table with error trips removed.
+        """
         layers = ['TripID', 'Gear']
         feature = 'Day'
         calcs = ['count']
@@ -468,6 +519,16 @@ class Operations():
 
     #remove trips that occur accross an entire trip (potentially multiple days) and caught less than cutoff number off fish
     def rem_small_trips(self, fish_sum, gn_cutoff, el_cutoff):
+        """
+        Removes gn net trips with any number of collections that caught less than the cutoff of fish. Can distiguish between gill-net and electrofishins trips.
+
+        Parameters:
+            fish_sum (Pandas.DataFrame): The fish dataframe summarized by collections with trip ids. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day', 'TripID', 'Fish Count'.
+            gn_cutoff (int): Fish catch in a gill-net trip equal to or lower are removed from the data.
+            el_cutoff (int): Fish catch in a electrofishing trip equal to or lower are removed from the data.
+        Returns:
+            (Dataframe) The trip summary table with error trips removed.
+        """
         layers = ['TripID', 'Gear']
         feature = 'Fish Count'
         calcs = ['sum']
@@ -489,6 +550,19 @@ class Operations():
         return fish_sum
 
     def get_trip_summary(self, fish_df, buffer, one_collec_cutoff, trip_gn_cutoff, trip_el_cutoff):
+        """
+        Creates a table that summarizes what collections happened and what trips they are part of while removing likely erroneous trips.
+
+        Parameters:
+            fish_df (Pandas.DataFrame): The fish dataframe to count trips in. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day'.
+            buffer (int): The number of days that can occur between collections while still including them in the same trip.
+            one_collec_cutoff (int): The number of fish caught in a single collection trip that are considerd too few be an actual trip.
+            trip_gn_cutoff (int): Fish catch in a gill-net trip equal to or lower are removed from the data.
+            trip_el_cutoff (int): Fish catch in a electrofishing trip equal to or lower are removed from the data.
+
+        Returns:
+            (Dataframe) The trip summary table with error trips removed.
+        """
         fish_sum = self.collec_fish_count(fish_df)
         trip_sum = self.assign_trip_ids(fish_sum, buffer)
         trip_sum = self.rem_one_collec_gn_trips(trip_sum, one_collec_cutoff)
@@ -497,7 +571,21 @@ class Operations():
 
     #'TripID' and 'Fish Count' columns must not be removed from the trip_df
 
-    def cpue_gn_calc(self, fish_df, trip_df, layers, nets, nights):
+    def cpue_gn_calc(self, fish_df, trip_df, layers, nets = 4, nights = 2):
+        """
+        Calculates CPUE on any subset of the data that has at least one of the item in ['Year', 'Month', 'Gear', 'Location', 'Site'} and optionally items in ['Species', 'Sex'].
+
+        Parameters:
+            fish_df (Pandas.DataFrame): The fish dataframe that has fish you wish to include in CPUE calculations (usually the entire fish dataframe, but filtering is acceptable).
+            trip_df (Pandas.DataFrame): A trip summary dataframe that outlines all valid trips.
+            layers: The layers to group by and compute CPUE over.
+            nets: Number of nets used per trip. Defaults to 4.
+            nights: Number of night the nets were left out each trip. Defaults to 2.
+
+        Returns:
+            (Dataframe) A table with the CPUE of each group defined with the layers parameter.
+        """
+
         trip_df = trip_df[trip_df['Gear'] == 'GN'] #only care about gill-nets
 
         #if gear column not filtered out, only include gill-nets
