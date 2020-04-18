@@ -348,13 +348,13 @@ class Operations():
 
     ############################New CPUE Functions###################################
     #count fish caught each day in each sub group (trips not across days)
-    def collec_fish_count(fish_df):
+    def collec_fish_count(self, fish_df):
       layers = ['Year', 'Location', 'Site', 'Gear', 'Month', 'Day']
       feature = 'Length'
       calcs = ['count']
       titles = ['Fish Count']
 
-      grouped_multiple = fish_df1.groupby(layers).agg({feature: calcs})
+      grouped_multiple = fish_df.groupby(layers).agg({feature: calcs})
       grouped_multiple.columns = titles
       grouped_multiple = grouped_multiple.reset_index()
 
@@ -364,7 +364,7 @@ class Operations():
 
       #Assign trip ids that are connected to the previus trip by the buffer of days
     #Assign trip ids that are connected to the previus trip by the buffer of days
-    def assign_trip_ids(fish_sum, buffer):
+    def assign_trip_ids(self, fish_sum, buffer):
         trip_id = 0
         collec_num = 1
         next_month = {1:2, 2:3, 3:4, 4:5, 6:7, 7:8, 8:9, 10:11, 11:12, 12:1}
@@ -444,7 +444,7 @@ class Operations():
         return fish_sum
 
     #remove trips that occur accross on a single day and caught less than cutoff number off fish
-    def rem_one_collec_gn_trips(fish_sum, cutoff):
+    def rem_one_collec_gn_trips(self, fish_sum, cutoff):
         layers = ['TripID', 'Gear']
         feature = 'Day'
         calcs = ['count']
@@ -467,7 +467,7 @@ class Operations():
         return fish_sum
 
     #remove trips that occur accross an entire trip (potentially multiple days) and caught less than cutoff number off fish
-    def rem_small_trips(fish_sum, gn_cutoff, el_cutoff):
+    def rem_small_trips(self, fish_sum, gn_cutoff, el_cutoff):
         layers = ['TripID', 'Gear']
         feature = 'Fish Count'
         calcs = ['sum']
@@ -491,20 +491,20 @@ class Operations():
     def get_trip_summary(self, fish_df, buffer, one_collec_cutoff, trip_gn_cutoff, trip_el_cutoff):
         fish_sum = self.collec_fish_count(fish_df)
         trip_sum = self.assign_trip_ids(fish_sum, buffer)
-        trip_sum = self.rem_one_collec_gn_trips(trip_sum, cutoff)
-        trip_sum = self.rem_small_trips(trip_sum, gn_cutoff, el_cutoff)
+        trip_sum = self.rem_one_collec_gn_trips(trip_sum, one_collec_cutoff)
+        trip_sum = self.rem_small_trips(trip_sum, trip_gn_cutoff, trip_el_cutoff)
         return trip_sum
 
     #'TripID' and 'Fish Count' columns must not be removed from the trip_df
 
-    def cpue_gn_calc(self, fish_df, layers, nights, nets, buffer = 4, one_collec_cutoff = 10, trip_gn_cutoff = 10):
-        #need an unaltered trip summary to make sure trips aren't filtered out
-        trips_df = self.get_trip_summary(lakepowell.Data().get_fish_data(), buffer, one_collec_cutoff, trip_gn_cutoff, 1) #trip_el_cutoff doesn't matter because EL aren't used
+    def cpue_gn_calc(self, fish_df, trip_df, layers, nets, nights):
         trip_df = trip_df[trip_df['Gear'] == 'GN'] #only care about gill-nets
 
         #if gear column not filtered out, only include gill-nets
         if 'Gear' in fish_df.columns:
             fish_df =  fish_df[fish_df['Gear'] == 'GN']
+        if 'Gear' in trip_df.columns:
+            trip_df = trip_df[trip_df['Gear'] == 'GN']
 
         #****************using trip_df****************
         #----------------------------Fish caught each full trip in each group of the summary table----------------------------
