@@ -354,24 +354,37 @@ class Operations():
                 if not (row[num_col] >= min) and not(row[num_col] <= max):
                     df.drop(index, inplace=True)
 
-    def betweenDates(df, d1, m1, y1, d2, m2, y2):
+    def betweenDates(df, beginning, end):
         """
-        Filters out all data that is not between the given dates
+        Filters a dataframe to remove rows that lie outside a range of dates
 
         Parameters:
-            df (Pandas.DataFrame): The dataframe to be filtered.
-            d1 (int): Day of start date.
-            m1 (int): Month of start date.
-            y1 (int): Year of start date.
-            d2 (int): Day of end date.
-            m2 (int): Month of end date.
-            y2 (int): Year of end date.
+            df (Dataframe): The dataframe of interest
+            beginning (str): One of the five options for understanding the amount of fish caught. ('individual', 'ave_len', 'tot_len, 'ave_mass', or 'tot_mass'
+            end (str): The abbreviation indicating the desired method for measuring "What is the water like" ('diff_level', 'max_level', 'min_level', 'ave_level', 'max_temp', or 'min_temp')
         Returns:
-            (Dataframe) The new filtered data frame.
+            (Dataframe) Dataframe with rows within the range of dates 
         """
-        df = df[(df.Year >= y1) & (df.Year <= y2)]
-        df = df[(df.Month >= m1) & (df.Day >= d1)]
-        df = df[(df.Month <= m2) & (df.Day <= d2)]
+
+        beginning = beginning.split("/")
+        beginning = [int(i) for i in beginning] 
+        begin_month, begin_day, begin_year = beginning
+
+        end = end.split("/") 
+        end = [int(i) for i in end] 
+        end_month, end_day, end_year =  end
+        new_fish = df.copy()
+
+        new_fish = new_fish[new_fish['Year'] >= begin_year]
+        new_fish = new_fish[new_fish['Year'] <= end_year]
+
+        new_fish = new_fish[(new_fish['Year'] > begin_year) | (new_fish['Month'] >= begin_month)]
+        new_fish = new_fish[(new_fish['Year'] < end_year) | (new_fish['Month'] <= end_month)]
+
+        new_fish = new_fish[(new_fish['Year'] > begin_year) | (new_fish['Month'] > begin_month) | (new_fish['Day'] >= begin_day)]
+        new_fish = new_fish[(new_fish['Year'] < end_year) | (new_fish['Month'] < end_month) | (new_fish['Day'] <= end_day)]
+
+        return new_fish
 
     ############################New CPUE Functions###################################
     def collec_fish_count(self, fish_df):
