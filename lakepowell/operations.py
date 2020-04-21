@@ -145,37 +145,6 @@ class Operations():
 
         return el_ratio
 
- #############Graphing#################
-    def graph_line_single_axis(self, table, layers, time_axis, num_vars):
-      fig, ax = plt.subplots(figsize=(20,5))
-      table.set_index(time_axis, inplace=True)
-      key_labels = []
-      styles = ['-', '--', '-.', ':']
-
-      for i in range(len(num_vars)):
-        plt.gca().set_prop_cycle(None)
-        style = styles[i % (len(styles) - 1)]
-        var = num_vars[i]
-        table.groupby(layers)[var].plot(legend=True, ax=ax, marker = 'o', linestyle = style)
-
-        if i == 0:
-          lines, labels = ax.get_legend_handles_labels()
-          key_labels = labels
-
-      new_labels = []
-      for var in num_vars:
-        var_labels = [s + ' ' + var for s in key_labels] #add variable type to the end of each group
-        new_labels.extend(var_labels) #add new labels to the complete list
-
-      loc = plticker.MultipleLocator(base=1) # this locator puts ticks at regular intervals
-      ax.xaxis.set_major_locator(loc)
-      plt.xticks(rotation=70)
-
-      lines, labels = ax.get_legend_handles_labels()
-      ax.legend(lines, new_labels, loc=0)
-      ax.set_xlabel(time_axis)
-
-      return ax
 
 ###########Correltation Functions##############
 
