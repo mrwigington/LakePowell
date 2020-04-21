@@ -294,8 +294,8 @@ class Operations():
       # TODO check on species
       # TODO check on biotic factor
 
-      catch_per_unit_effort = self.summarize_cpue(species, biotic, timeframe, auto)
-      water_summary = self.summarize_water(abiotic, timeframe)
+      catch_per_unit_effort = summarize_cpue(self, species, biotic, timeframe, auto)
+      water_summary = summarize_water(self, abiotic, timeframe)
 
       if timeframe.lower() == 'year':
         joined = self.catch_per_unit_effort.join(water_summary)
