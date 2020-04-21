@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import lakepowell
 from scipy.stats.stats import pearsonr
+import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
+import seaborn
 
 
 class Operations():
