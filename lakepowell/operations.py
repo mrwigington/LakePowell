@@ -147,7 +147,7 @@ class Operations():
 
 ###########Correltation Functions##############
 
-    def summarize_cpue(self, species, biotic, timeframe, auto):
+    def summarize_cpue(self, fish_data, species, biotic, timeframe, auto):
       """
       Generates the Catch per Unit Effort (CPUE).
 
@@ -158,7 +158,7 @@ class Operations():
       Returns:
         (Dataframe) This function returns a panda (sometimes multilevel) with one column, the CPUE.
       """
-      fish_data = data.get_fish_data()
+      # fish_data = data.get_fish_data()
       species_df = fish_data[fish_data['Species'] == species]
       allowed_weight_species= ['LMB', 'STB']  # List of which Species have mass data
       summarized = None
@@ -294,8 +294,8 @@ class Operations():
       # TODO check on species
       # TODO check on biotic factor
 
-      catch_per_unit_effort = summarize_cpue(self, species, biotic, timeframe, auto)
-      water_summary = summarize_water(self, abiotic, timeframe)
+      catch_per_unit_effort = self.summarize_cpue(species, biotic, timeframe, auto)
+      water_summary = self.summarize_water(abiotic, timeframe)
 
       if timeframe.lower() == 'year':
         joined = self.catch_per_unit_effort.join(water_summary)
