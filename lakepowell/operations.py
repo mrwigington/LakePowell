@@ -354,7 +354,7 @@ class Operations():
                 if not (row[num_col] >= min) and not(row[num_col] <= max):
                     df.drop(index, inplace=True)
 
-    def betweenDates(self, df, d1, m1, y1, d2, m2, y2):
+    def betweenDates(self, df, beginning, end):
         """
         Filters a dataframe to remove rows that lie outside a range of dates
 
