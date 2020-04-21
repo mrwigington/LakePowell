@@ -90,12 +90,12 @@ class Operations():
         layers = ['Species', 'Year', 'Location', 'Month', 'Site', 'Gear']
         feature = 'Length'
         calcs = ['count']
-        ratio = get_el_ratio(full_fish_df)
+        ratio = self.get_el_ratio(full_fish_df)
 
-        gear_count = table_summary(fish_df, layers, feature, calcs, ['count'])
+        gear_count = self.table_summary(fish_df, layers, feature, calcs, ['count'])
         gear_count['CPUE'] = gear_count['count'].divide(8) #4 nets for two nights for each trip for CPUE
         gear_count.loc[gear_count.Gear == 'EL', 'CPUE'] = gear_count.loc[gear_count.Gear == 'EL', 'CPUE'] / ratio #scale CPUE for EL
-        year_cpue = table_summary(gear_count, ['Species', 'Year', 'Location'], 'CPUE', ['mean'], ['mean']) #mean gives CPUE for Year
+        year_cpue = self.table_summary(gear_count, ['Species', 'Year', 'Location'], 'CPUE', ['mean'], ['mean']) #mean gives CPUE for Year
 
         return year_cpue
 
@@ -111,9 +111,9 @@ class Operations():
         feature = 'Length'
         calcs = ['count']
 
-        site_count = table_summary(fish_df, layers, feature, calcs, ['count']) #count the fish cought for each colection
+        site_count = self.table_summary(fish_df, layers, feature, calcs, ['count']) #count the fish cought for each colection
         site_count['CPUE'] = site_count['count'].divide(8) #calculate CPUE for each site
-        year_cpue = table_summary(site_count, ['Species', 'Year', 'Location'], 'CPUE', ['mean'], ['mean']) #calculate CPUE across year/location
+        year_cpue = self.table_summary(site_count, ['Species', 'Year', 'Location'], 'CPUE', ['mean'], ['mean']) #calculate CPUE across year/location
 
         return year_cpue
 
@@ -129,7 +129,7 @@ class Operations():
         feature = 'Length'
         calcs = [lambda x: len(x)/32]#divide catch by 32 = 4 nets * 2 nights * 4 trips in a year
 
-        loc_cpue = table_summary(fish_df, layers, feature, calcs, titles)
+        loc_cpue = self.table_summary(fish_df, layers, feature, calcs, titles)
         return loc_cpue
 
 
@@ -143,8 +143,8 @@ class Operations():
         feature = 'Length'
         calcs = ['count']
 
-        year_gear_counts = table_summary(fish_df, layers, feature, calcs, ['num_fish'])
-        gear_means = table_summary(year_gear_counts, ['Gear'], 'num_fish', ['mean'], ['Mean'])
+        year_gear_counts = self.table_summary(fish_df, layers, feature, calcs, ['num_fish'])
+        gear_means = self.table_summary(year_gear_counts, ['Gear'], 'num_fish', ['mean'], ['Mean'])
         el = gear_means.loc[gear_means['Gear'] == 'EL', 'Mean'].iloc[0]
         gn = gear_means.loc[gear_means['Gear'] == 'GN', 'Mean'].iloc[0]
         el_ratio = el/gn
@@ -190,6 +190,7 @@ class Operations():
       Generates the Catch per Unit Effort (CPUE).
 
       Parameters:
+        fish_data (Dataframe): The original dataframe for the fish catch data
         species (str): The three letter acronym for the species of interest.
         biotic (str): One of the five options for understanding the amount of fish caught. ('individual', 'ave_len', 'tot_len, 'ave_mass', or 'tot_mass'
         timeframe (str): The period over which the data should be summarized. ('year' or 'month')
@@ -197,7 +198,8 @@ class Operations():
         (Dataframe) This function returns a panda (sometimes multilevel) with one column, the CPUE.
       """
       # fish_data = data.get_fish_data()
-      species_df = fish_data[fish_data['Species'] == species]
+      gear_df = fish_data[fish_data['Gear'] == 'GN']
+      species_df = gear_df[gear_df['Species'] == species]
       allowed_weight_species= ['LMB', 'STB']  # List of which Species have mass data
       summarized = None
       if biotic.lower() == 'individual':
@@ -268,18 +270,19 @@ class Operations():
 
       return pd.DataFrame(CPUE, columns =['CPUE'])
 
-    def summarize_water(self, abiotic, timeframe):
+    def summarize_water(self, water_data, abiotic, timeframe):
       """
       Summarizes water data.
 
       Parameters:
+        water_data (Dataframe): The original dataframe for the lake conditions data
         abiotic (str): The abbreviation indicating the desired method for measuring "What is the water like" ('diff_level', 'max_level', 'min_level', 'ave_level', 'max_temp', or 'min_temp')
         timeframe (str): The period over which the data should be summarized. ('year' or 'month')
       Returns:
         (Dataframe) This function returns water data grouped into functional spans of time based on 'timeframe' in a dataframe.
       """
 
-      water_data = data.get_water_data()
+      # water_data = data.get_water_data()
       levels = None
         # Set the depth at which to group the water data based on 'timeframe'
       if timeframe.lower() == 'year':
@@ -314,11 +317,13 @@ class Operations():
 
       return water_data
 
-    def abiotic_biotic_corr(self, species, biotic, abiotic, timeframe = 'year', lag_years = [0,1,2,3,4,5,10], auto = False):
+    def abiotic_biotic_corr(self, fish_data, water_data, species, biotic, abiotic, timeframe = 'year', lag_years = [0,1,2,3,4,5,10], auto = False):
       """
       Calculate's Pearson's R for correlations between the biotic data with the abiotic data from previous years.
 
       Parameters:
+        fish_data (Dataframe): The original dataframe for the fish catch data.
+        water_data (Dataframe): The original dataframe for the lake conditions data.
         species (str): The three letter acronym for the species of interest.
         biotic (str): One of the five options for understanding the amount of fish caught. ('individual', 'ave_len', 'tot_len, 'ave_mass', or 'tot_mass'
         abiotic (str): The abbreviation indicating the desired method for measuring "What is the water like" ('diff_level', 'max_level', 'min_level', 'ave_level', 'max_temp', or 'min_temp')
@@ -332,8 +337,8 @@ class Operations():
       # TODO check on species
       # TODO check on biotic factor
 
-      catch_per_unit_effort = self.summarize_cpue(species, biotic, timeframe, auto)
-      water_summary = self.summarize_water(abiotic, timeframe)
+      catch_per_unit_effort = self.summarize_cpue(fish_data, species, biotic, timeframe, auto)
+      water_summary = self.summarize_water(water_data, abiotic, timeframe)
 
       if timeframe.lower() == 'year':
         joined = self.catch_per_unit_effort.join(water_summary)
