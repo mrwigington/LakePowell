@@ -8,7 +8,7 @@ from scipy.stats.stats import pearsonr
 class Operations():
 
 ########Summarize functions ###########
-    def table_summary(df, layers, feature, calcs, titles):
+    def table_summary(self, df, layers, feature, calcs, titles):
         '''
         Summarizes fish or lake data based on given criteria over a specified numerical variable.
 
@@ -34,7 +34,7 @@ class Operations():
         return grouped_multiple
 
 
-    def join_fish_and_water(fish_df, water_df):
+    def join_fish_and_water(self, fish_df, water_df):
         '''
         Combines the fish and lake condition data tables based on date. It will join off of the most specific date in both dataframes.
         Parameters:
@@ -73,7 +73,7 @@ class Operations():
         return new_df
 
 
-    def cpue_scale(fish_df, full_fish_df):
+    def cpue_scale(self, fish_df, full_fish_df):
         '''
         Calculates the CPUE by determining the CPUE for each trip and then scales EL to GN to give a more accurate representation of CPUE.
         Parameters:
@@ -94,7 +94,7 @@ class Operations():
         return year_cpue
 
 
-    def cpue_precise(fish_df):
+    def cpue_precise(self, fish_df):
         '''
         Calculates the CPUE by determining the CPUE for each trip
         Parameters:
@@ -112,7 +112,7 @@ class Operations():
         return year_cpue
 
 
-    def cpue_simple(fish_df):
+    def cpue_simple(self, fish_df):
         '''
         Calculates the CPUE by determining the CPUE across each year, assuming that 4 trips were made each year_cpue and all gear types performed equally well
         Parameters:
@@ -127,7 +127,7 @@ class Operations():
         return loc_cpue
 
 
-    def get_el_ratio(fish_df):
+    def get_el_ratio(self, fish_df):
         '''
         Determines the ratio of fish caught with EL to fish caught with GN (EL/GN)
         Parameters
@@ -147,7 +147,7 @@ class Operations():
 
 ###########Correltation Functions##############
 
-    def summarize_cpue(species, biotic, timeframe, auto):
+    def summarize_cpue(self, species, biotic, timeframe, auto):
       """
       Generates the Catch per Unit Effort (CPUE).
 
@@ -230,7 +230,7 @@ class Operations():
 
       return pd.DataFrame(CPUE, columns =['CPUE'])
 
-    def summarize_water(abiotic, timeframe):
+    def summarize_water(self, abiotic, timeframe):
       """
       Summarizes water data.
 
@@ -276,7 +276,7 @@ class Operations():
 
       return water_data
 
-    def abiotic_biotic_corr(species, biotic, abiotic, timeframe = 'year', lag_years = [0,1,2,3,4,5,10], auto = False):
+    def abiotic_biotic_corr(self, species, biotic, abiotic, timeframe = 'year', lag_years = [0,1,2,3,4,5,10], auto = False):
       """
       Calculate's Pearson's R for correlations between the biotic data with the abiotic data from previous years.
 
@@ -335,7 +335,7 @@ class Operations():
         return joined_w_lag.corr('pearson')
 
     #########################Filter Functions#####################################
-    def conditional_range(df, con_col, con_var, num_col, min, max):
+    def conditional_range(self, df, con_col, con_var, num_col, min, max):
         """
         Filters specific ranges of numerical variables based on categorical variables in the data set.
 
@@ -354,7 +354,7 @@ class Operations():
                 if not (row[num_col] >= min) and not(row[num_col] <= max):
                     df.drop(index, inplace=True)
 
-    def betweenDates(df, d1, m1, y1, d2, m2, y2):
+    def betweenDates(self, df, d1, m1, y1, d2, m2, y2):
         """
         Filters out all data that is not between the given dates
 
@@ -638,7 +638,7 @@ class Operations():
         return cpue_table
 
 ########Weight imputation functions##########
-    def impute_weight(fish_data, species):
+    def impute_weight(self, fish_data, species):
       STB = fish_data.loc[fish_data.Species == species]
       STB_GL = STB.loc[STB.Gear=="GN"]
       weights_only = STB_GL.loc[(STB_GL.Mass > 0) & (STB_GL.Mass < 6000)] #drop all 0 values
