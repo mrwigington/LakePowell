@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.linear_model import LinearRegression
+
 import lakepowell
 from scipy.stats.stats import pearsonr
 
@@ -161,7 +163,8 @@ class Operations():
         (Dataframe) This function returns a panda (sometimes multilevel) with one column, the CPUE.
       """
       # fish_data = data.get_fish_data()
-      species_df = fish_data[fish_data['Species'] == species]
+      gear_df = fish_data[fish_data['Gear'] == 'GN']
+      species_df = gear_df[gear_df['Species'] == species]
       allowed_weight_species= ['LMB', 'STB']  # List of which Species have mass data
       summarized = None
       if biotic.lower() == 'individual':
