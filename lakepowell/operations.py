@@ -5,7 +5,6 @@ import lakepowell
 from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
-import seaborn
 
 from sklearn.linear_model import LinearRegression
 from sklearn import metrics
