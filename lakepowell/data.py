@@ -143,9 +143,9 @@ class Data():
 
         Gear_abv = {"EL": "Electrofishing",
             "GN":"Gill-nets",
-            "AN": "AN",
-            "CR": "CR",
-            "SN": "SN",
+            "AN": "Angling",
+            "CR": "Creel Net",
+            "SN": "Seine Net",
             "GH": "Gill-net miss-type??",
             "BN": "Gill-net miss-type?",
             "FL": "FL",
