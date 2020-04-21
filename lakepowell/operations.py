@@ -8,7 +8,7 @@ from scipy.stats.stats import pearsonr
 class Operations():
 
 ########Summarize functions ###########
-    def table_summary(df, layers, feature, calcs, titles):
+    def table_summary(self, df, layers, feature, calcs, titles):
         '''
         Summarizes fish or lake data based on given criteria over a specified numerical variable.
 
@@ -34,7 +34,7 @@ class Operations():
         return grouped_multiple
 
 
-    def join_fish_and_water(fish_df, water_df):
+    def join_fish_and_water(self, fish_df, water_df):
         '''
         Combines the fish and lake condition data tables based on date. It will join off of the most specific date in both dataframes.
         Parameters:
@@ -73,7 +73,7 @@ class Operations():
         return new_df
 
 
-    def cpue_scale(fish_df, full_fish_df):
+    def cpue_scale(self, fish_df, full_fish_df):
         '''
         Calculates the CPUE by determining the CPUE for each trip and then scales EL to GN to give a more accurate representation of CPUE.
         Parameters:
@@ -94,7 +94,7 @@ class Operations():
         return year_cpue
 
 
-    def cpue_precise(fish_df):
+    def cpue_precise(self, fish_df):
         '''
         Calculates the CPUE by determining the CPUE for each trip
         Parameters:
@@ -112,7 +112,7 @@ class Operations():
         return year_cpue
 
 
-    def cpue_simple(fish_df):
+    def cpue_simple(self, fish_df):
         '''
         Calculates the CPUE by determining the CPUE across each year, assuming that 4 trips were made each year_cpue and all gear types performed equally well
         Parameters:
@@ -127,7 +127,7 @@ class Operations():
         return loc_cpue
 
 
-    def get_el_ratio(fish_df):
+    def get_el_ratio(self, fish_df):
         '''
         Determines the ratio of fish caught with EL to fish caught with GN (EL/GN)
         Parameters
@@ -147,7 +147,7 @@ class Operations():
 
 ###########Correltation Functions##############
 
-    def summarize_cpue(species, biotic, timeframe, auto):
+    def summarize_cpue(self, species, biotic, timeframe, auto):
       """
       Generates the Catch per Unit Effort (CPUE).
 
@@ -230,7 +230,7 @@ class Operations():
 
       return pd.DataFrame(CPUE, columns =['CPUE'])
 
-    def summarize_water(abiotic, timeframe):
+    def summarize_water(self, abiotic, timeframe):
       """
       Summarizes water data.
 
@@ -276,7 +276,7 @@ class Operations():
 
       return water_data
 
-    def abiotic_biotic_corr(species, biotic, abiotic, timeframe = 'year', lag_years = [0,1,2,3,4,5,10], auto = False):
+    def abiotic_biotic_corr(self, species, biotic, abiotic, timeframe = 'year', lag_years = [0,1,2,3,4,5,10], auto = False):
       """
       Calculate's Pearson's R for correlations between the biotic data with the abiotic data from previous years.
 
@@ -333,3 +333,359 @@ class Operations():
 
           # perform the correlation and return
         return joined_w_lag.corr('pearson')
+
+    #########################Filter Functions#####################################
+    def conditional_range(self, df, con_col, con_var, num_col, min, max):
+        """
+        Filters specific ranges of numerical variables based on categorical variables in the data set.
+
+        Parameters:
+            df (Pandas.DataFrame): The dataframe to be filtered.
+            con_col (str): The categorical column in the dataframe that contains the conditional variable.
+            con_var (str): The condition variable found in the categorical column that you want to filter based on.
+            num_col (str): The numerical column that you are going to filter between the min and max for the given condition.
+            min (str): The minimum acceptable value of the numerical column for the conditional variable.
+            max (str): The maximum acceptable value of the numerical column for the conditional variable.
+        Returns:
+            (Dataframe) The new filtered dataframe.
+        """
+        for index,row in df.iterrows():
+            if row[con_col] == con_var:
+                if not (row[num_col] >= min) and not(row[num_col] <= max):
+                    df.drop(index, inplace=True)
+
+    def betweenDates(self, df, beginning, end):
+        """
+        Filters a dataframe to remove rows that lie outside a range of dates
+
+        Parameters:
+            df (Dataframe): The dataframe of interest
+            beginning (str): One of the five options for understanding the amount of fish caught. ('individual', 'ave_len', 'tot_len, 'ave_mass', or 'tot_mass'
+            end (str): The abbreviation indicating the desired method for measuring "What is the water like" ('diff_level', 'max_level', 'min_level', 'ave_level', 'max_temp', or 'min_temp')
+        Returns:
+            (Dataframe) Dataframe with rows within the range of dates
+        """
+
+        beginning = beginning.split("/")
+        beginning = [int(i) for i in beginning]
+        begin_month, begin_day, begin_year = beginning
+
+        end = end.split("/")
+        end = [int(i) for i in end]
+        end_month, end_day, end_year =  end
+        new_fish = df.copy()
+
+        new_fish = new_fish[new_fish['Year'] >= begin_year]
+        new_fish = new_fish[new_fish['Year'] <= end_year]
+
+        new_fish = new_fish[(new_fish['Year'] > begin_year) | (new_fish['Month'] >= begin_month)]
+        new_fish = new_fish[(new_fish['Year'] < end_year) | (new_fish['Month'] <= end_month)]
+
+        new_fish = new_fish[(new_fish['Year'] > begin_year) | (new_fish['Month'] > begin_month) | (new_fish['Day'] >= begin_day)]
+        new_fish = new_fish[(new_fish['Year'] < end_year) | (new_fish['Month'] < end_month) | (new_fish['Day'] <= end_day)]
+
+        return new_fish
+
+    ############################New CPUE Functions###################################
+    def collec_fish_count(self, fish_df):
+        """
+        Subgroups the fish dataframe into collections and counts the fish caught in each of those collections.
+
+        Parameters:
+            fish_df (Pandas.DataFrame): The fish dataframe to count trips in. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day'.
+        Returns:
+            (Dataframe) The fish dataframe summarized by collection with the number of fish caught each collection.
+        """
+        layers = ['Year', 'Location', 'Site', 'Gear', 'Month', 'Day']
+        feature = 'Length'
+        calcs = ['count']
+        titles = ['Fish Count']
+
+        grouped_multiple = fish_df.groupby(layers).agg({feature: calcs})
+        grouped_multiple.columns = titles
+        grouped_multiple = grouped_multiple.reset_index()
+
+        fish_sum = grouped_multiple
+        fish_sum = fish_sum[fish_sum['Gear'].isin(['EL', 'GN'])]
+        return fish_sum
+
+    #Assign trip ids that are connected to the previus trip by the buffer of days
+    def assign_trip_ids(self, fish_sum, buffer):
+        """
+        Assigns a column of trips to a summary collection dataframe as produced by collec_fish_count()
+
+        Parameters:
+            fish_sum (Pandas.DataFrame): The fish dataframe summarized by collections. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day'.
+            buffer (int): The number of days that can occur between collections while still including them in the same trip.
+        Returns:
+            (Dataframe) The fish collection summary table with addition of columns ids for each trip and a column that numbers the collections in each trip.
+        """
+        trip_id = 0
+        collec_num = 1
+        next_month = {1:2, 2:3, 3:4, 4:5, 6:7, 7:8, 8:9, 10:11, 11:12, 12:1}
+        #29 is used for february because worst case it increases the buffer across the end of a month on a non leap year.
+        days_in_month = {1:31, 2:29, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31}
+        row_ids = []
+        collec_of_trips = []
+
+        #loop through each collection in the fish summary table
+        for i in range(0, len(fish_sum)):
+            row = fish_sum.iloc[i]
+
+            if i == 0: #the first item in the table doesn't have a previous day to check
+                trip_id = trip_id + 1
+                row_ids.append(trip_id)
+                collec_of_trips.append(collec_num) #collection number in the trip is 1 because it is the first item
+
+            elif row['Gear'] == 'EL': #EL trips occur across a single collection
+                trip_id = trip_id + 1
+                row_ids.append(trip_id)
+                collec_num = 1 #collection number in the trip is 1 because it is the only one in the trip
+                collec_of_trips.append(collec_num)
+
+            elif row['Gear'] == 'GN': #GN collection need to see if it is connect to the previous collection as part of the same trip
+                prev_trip = fish_sum.iloc[i - 1]
+
+                if(prev_trip['Year'] == row ['Year'] and (prev_trip['Location'] == row ['Location'])
+                    and prev_trip['Site'] == row ['Site'] and prev_trip['Gear'] == row ['Gear'] ): #share the same trip info but collection was performed on a differnt day
+
+                    if prev_trip['Month'] == row ['Month']:
+                        day_range = list(range(int(prev_trip['Day']), int(prev_trip['Day'])+buffer+1)) #range of days that are valid to be included in the same trip
+
+                        if row['Day'] in day_range: #is in the same trip
+                            row_ids.append(trip_id) #use the same trip id
+                            collec_num = collec_num + 1 #increment collection number in the trip because it is part of the same trip
+                            collec_of_trips.append(collec_num)
+
+                        else:
+                            trip_id = trip_id + 1 #assign a new trip id
+                            row_ids.append(trip_id)
+                            collec_num = 1 #is a new trip, so reset collection number
+                            collec_of_trips.append(collec_num)
+
+                    elif next_month.get(prev_trip['Month']) == row['Month']:
+                        days_left = days_in_month.get(prev_trip['Month']) - prev_trip['Day'] #number of days left in month
+                        #1 because months 1 indexed not zero indexed, if (buffer - days_left) is possitive, the day in the current month
+                        #can be included in the trip of the previous month. Otherwise it is negative and range returns an empty list.
+                        days_in_new_month = 1 + buffer - days_left
+                        #range starts with 1 (first day in the month, add 1 to upper range because it is exclusive
+                        day_range = list(range(1, days_in_new_month + 1)) #range of days that are valid to be included in the same trip
+
+                        if row['Day'] in day_range: #is in the same trip
+                            row_ids.append(trip_id) #use the same trip id
+                            collec_num = collec_num + 1 #increment collection number in the trip because it is part of the same trip
+                            collec_of_trips.append(collec_num)
+
+                        else:
+                            trip_id = trip_id + 1 #assign a new trip id
+                            row_ids.append(trip_id)
+                            collec_num = 1 #is a new trip, so reset collection number
+                            collec_of_trips.append(collec_num)
+
+                    else:
+                        trip_id = trip_id + 1 #assign a new trip id
+                        row_ids.append(trip_id)
+                        collec_num = 1 #is a new trip, so reset collection number
+                        collec_of_trips.append(collec_num)
+
+                else: #if GN and EL trips are not the only ones in the data, each collection is a trip for those data
+                    trip_id = trip_id + 1
+                    row_ids.append(trip_id)
+                    collec_num = 1 #is a new trip, so reset collection number
+                    collec_of_trips.append(collec_num)
+
+        fish_sum['TripID'] = row_ids
+        fish_sum['CollecNum'] = collec_of_trips
+        return fish_sum
+
+    #remove trips that occur accross on a single day and caught less than cutoff number off fish
+    def rem_one_collec_gn_trips(self, fish_sum, cutoff):
+        """
+        Removes gn net trips that only have one collection and caught less than the cutoff of fish.
+
+        Parameters:
+            fish_sum (Pandas.DataFrame): The fish dataframe summarized by collections with trip ids. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day', 'TripID', 'Fish Count'.
+            cutoff (int): The number of fish caught in a single collection trip that are considerd too few be an actual trip.
+        Returns:
+            (Dataframe) The trip summary table with error trips removed.
+        """
+        layers = ['TripID', 'Gear']
+        feature = 'Day'
+        calcs = ['count']
+        titles = ['Day Count']
+
+        #count the number of collections in each trip
+        grouped_multiple = fish_sum.groupby(layers).agg({feature: calcs})
+        grouped_multiple.columns = titles
+        grouped_multiple = grouped_multiple.reset_index()
+        trip_day_count = grouped_multiple
+        one_day_trips = trip_day_count[trip_day_count['Day Count'] == 1] #trips only with one collection
+
+        #ids on GN one collection trips (EL trips are supposed to be one day)
+        gn_one_day = one_day_trips[one_day_trips['Gear'] == 'GN'] #many are likely errors
+
+        gn_one_full_rows = fish_sum[fish_sum['TripID'].isin(gn_one_day['TripID'])]
+        gn_error_rows = gn_one_full_rows[gn_one_full_rows['Fish Count'] <= cutoff]
+
+        fish_sum.drop(gn_error_rows.index, inplace=True)
+        return fish_sum
+
+    #remove trips that occur accross an entire trip (potentially multiple days) and caught less than cutoff number off fish
+    def rem_small_trips(self, fish_sum, gn_cutoff, el_cutoff):
+        """
+        Removes gn net trips with any number of collections that caught less than the cutoff of fish. Can distiguish between gill-net and electrofishins trips.
+
+        Parameters:
+            fish_sum (Pandas.DataFrame): The fish dataframe summarized by collections with trip ids. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day', 'TripID', 'Fish Count'.
+            gn_cutoff (int): Fish catch in a gill-net trip equal to or lower are removed from the data.
+            el_cutoff (int): Fish catch in a electrofishing trip equal to or lower are removed from the data.
+        Returns:
+            (Dataframe) The trip summary table with error trips removed.
+        """
+        layers = ['TripID', 'Gear']
+        feature = 'Fish Count'
+        calcs = ['sum']
+        titles = ['Trip Fish Count']
+
+        grouped_multiple = fish_sum.groupby(layers).agg({feature: calcs})
+        grouped_multiple.columns = titles
+        grouped_multiple = grouped_multiple.reset_index()
+
+        #ids on GN one day trips (EL trips are supposed to be one day)
+        gn_low_count = grouped_multiple[(grouped_multiple['Gear'] == 'GN') & (grouped_multiple['Trip Fish Count'] <= gn_cutoff)]
+        gn_error_rows = fish_sum[fish_sum['TripID'].isin(gn_low_count['TripID'])]
+
+        #remove small el trip counts
+        el_low_count = grouped_multiple[(grouped_multiple['Gear'] == 'EL') & (grouped_multiple['Trip Fish Count'] <= el_cutoff)]
+        el_error_rows = fish_sum[fish_sum['TripID'].isin(el_low_count['TripID'])]
+
+        fish_sum.drop(el_error_rows.index, inplace=True)
+        return fish_sum
+
+    def get_trip_summary(self, fish_df, buffer, one_collec_cutoff, trip_gn_cutoff, trip_el_cutoff):
+        """
+        Creates a table that summarizes what collections happened and what trips they are part of while removing likely erroneous trips.
+
+        Parameters:
+            fish_df (Pandas.DataFrame): The fish dataframe to count trips in. Must have the following columns: 'Year', 'Location', 'Site', 'Gear', 'Month', 'Day'.
+            buffer (int): The number of days that can occur between collections while still including them in the same trip.
+            one_collec_cutoff (int): The number of fish caught in a single collection trip that are considerd too few be an actual trip.
+            trip_gn_cutoff (int): Fish catch in a gill-net trip equal to or lower are removed from the data.
+            trip_el_cutoff (int): Fish catch in a electrofishing trip equal to or lower are removed from the data.
+
+        Returns:
+            (Dataframe) The trip summary table with error trips removed.
+        """
+        fish_sum = self.collec_fish_count(fish_df)
+        trip_sum = self.assign_trip_ids(fish_sum, buffer)
+        trip_sum = self.rem_one_collec_gn_trips(trip_sum, one_collec_cutoff)
+        trip_sum = self.rem_small_trips(trip_sum, trip_gn_cutoff, trip_el_cutoff)
+        return trip_sum
+
+    #'TripID' and 'Fish Count' columns must not be removed from the trip_df
+
+    def cpue_gn_calc(self, fish_df, trip_df, layers, nets = 4, nights = 2):
+        """
+        Calculates CPUE on any subset of the data that has at least one of the item in ['Year', 'Month', 'Gear', 'Location', 'Site'} and optionally items in ['Species', 'Sex'].
+
+        Parameters:
+            fish_df (Pandas.DataFrame): The fish dataframe that has fish you wish to include in CPUE calculations (usually the entire fish dataframe, but filtering is acceptable).
+            trip_df (Pandas.DataFrame): A trip summary dataframe that outlines all valid trips.
+            layers: The layers to group by and compute CPUE over.
+            nets: Number of nets used per trip. Defaults to 4.
+            nights: Number of night the nets were left out each trip. Defaults to 2.
+
+        Returns:
+            (Dataframe) A table with the CPUE of each group defined with the layers parameter.
+        """
+
+        trip_df = trip_df[trip_df['Gear'] == 'GN'] #only care about gill-nets
+
+        #if gear column not filtered out, only include gill-nets
+        if 'Gear' in fish_df.columns:
+            fish_df =  fish_df[fish_df['Gear'] == 'GN']
+        if 'Gear' in trip_df.columns:
+            trip_df = trip_df[trip_df['Gear'] == 'GN']
+
+        #****************using trip_df****************
+        #----------------------------Fish caught each full trip in each group of the summary table----------------------------
+        layers0 = list(set(layers) & set(trip_df.columns)) #intersection of columns to only get layers that fit trips
+        layers0.append('TripID')
+
+        feature0 = 'Fish Count'
+        calcs0 = ['sum']
+        titles0 = ['Fish Count']
+
+        grouped_multiple0 = trip_df.groupby(layers0).agg({feature0: calcs0})
+        grouped_multiple0.columns = titles0
+        grouped_multiple0 = grouped_multiple0.reset_index()
+
+        #---------------------------------count trips per given period-----------------------------------------------
+        layers1 = layers0
+        layers1.remove('TripID')
+        feature1 = 'TripID'
+        calcs1 = ['count']
+        titles1 = ['Trip Count']
+
+        grouped_multiple1 = grouped_multiple0.groupby(layers1).agg({feature1: calcs1})
+        grouped_multiple1.columns = titles1
+        grouped_multiple1 = grouped_multiple1.reset_index()
+        fish_count_sum = grouped_multiple1
+
+        #****************using fish_df****************
+        #------------------------------number of fish caught for each group------------------------------
+        feature2 = layers[-1] #count the smallest group in the data (represents individual trip entries)
+        calcs2 = ['count']
+        titles2 = ['Fish Count']
+
+        grouped_multiple2 = fish_df.groupby(layers).agg({feature2: calcs2})
+        grouped_multiple2.columns = titles2
+        grouped_multiple2 = grouped_multiple2.reset_index()
+
+        #****************using summarized fish_df and summarized trip_df****************
+        cpue_table = grouped_multiple2.merge(fish_count_sum) #merge the dataframes so only fish entries that match a trip are kept
+
+        #calculate CPUE
+        cpue_table['CPUE'] = cpue_table['Fish Count'] / (cpue_table['Trip Count'] * nets * nights)
+
+        return cpue_table
+
+########Weight imputation functions##########
+    def impute_weight(self, fish_data, species):
+      STB = fish_data.loc[fish_data.Species == species]
+      STB_GL = STB.loc[STB.Gear=="GN"]
+      weights_only = STB_GL.loc[(STB_GL.Mass > 0) & (STB_GL.Mass < 6000)] #drop all 0 values
+      weights_only = weights_only.sort_values(by=['Length'])
+      no_weights = STB_GL.loc[STB_GL.Mass == 0] #get all 0 values
+
+
+
+      X = weights_only.Length.to_numpy().reshape(-1, 1)
+      y = weights_only.Mass.to_numpy()
+
+
+      # Fitting Polynomial Regression to the dataset
+      from sklearn.preprocessing import PolynomialFeatures
+
+      model = PolynomialFeatures(degree = 2)
+      X_poly = model.fit_transform(X)
+
+      model.fit(X_poly, y)
+      lin = LinearRegression()
+      lin.fit(X_poly, y)
+
+
+      knownLength = no_weights.Length.to_numpy().reshape(-1, 1)
+      knownLength = model.fit_transform(knownLength)
+      newy = no_weights.Mass.to_numpy()
+
+      predicted_mass = lin.predict(knownLength)
+
+      no_weights = no_weights.drop(columns="Mass")
+      no_weights['Mass'] = predicted_mass
+      no_weights['Mass']
+
+      newdf = weights_only.append(no_weights)
+
+      #return df that has imputed weights
+      return newdf
