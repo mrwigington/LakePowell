@@ -636,3 +636,43 @@ class Operations():
         cpue_table['CPUE'] = cpue_table['Fish Count'] / (cpue_table['Trip Count'] * nets * nights)
 
         return cpue_table
+
+########Weight imputation functions##########
+    def impute_weight(fish_data, species):
+      STB = fish_data.loc[fish_data.Species == species]
+      STB_GL = STB.loc[STB.Gear=="GN"]
+      weights_only = STB_GL.loc[(STB_GL.Mass > 0) & (STB_GL.Mass < 6000)] #drop all 0 values
+      weights_only = weights_only.sort_values(by=['Length'])
+      no_weights = STB_GL.loc[STB_GL.Mass == 0] #get all 0 values
+
+
+
+      X = weights_only.Length.to_numpy().reshape(-1, 1)
+      y = weights_only.Mass.to_numpy()
+
+
+      # Fitting Polynomial Regression to the dataset
+      from sklearn.preprocessing import PolynomialFeatures
+
+      model = PolynomialFeatures(degree = 2)
+      X_poly = model.fit_transform(X)
+
+      model.fit(X_poly, y)
+      lin = LinearRegression()
+      lin.fit(X_poly, y)
+
+
+      knownLength = no_weights.Length.to_numpy().reshape(-1, 1)
+      knownLength = model.fit_transform(knownLength)
+      newy = no_weights.Mass.to_numpy()
+
+      predicted_mass = lin.predict(knownLength)
+
+      no_weights = no_weights.drop(columns="Mass")
+      no_weights['Mass'] = predicted_mass
+      no_weights['Mass']
+
+      newdf = weights_only.append(no_weights)
+
+      #return df that has imputed weights
+      return newdf
