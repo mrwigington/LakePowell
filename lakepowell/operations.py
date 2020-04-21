@@ -294,11 +294,11 @@ class Operations():
       # TODO check on species
       # TODO check on biotic factor
 
-      catch_per_unit_effort = summarize_cpue(species, biotic, timeframe, auto)
-      water_summary = summarize_water(abiotic, timeframe)
+      catch_per_unit_effort = self.summarize_cpue(species, biotic, timeframe, auto)
+      water_summary = self.summarize_water(abiotic, timeframe)
 
       if timeframe.lower() == 'year':
-        joined = catch_per_unit_effort.join(water_summary)
+        joined = self.catch_per_unit_effort.join(water_summary)
 
         abio_data = water_summary['Abiotic']
 
@@ -317,7 +317,7 @@ class Operations():
       elif timeframe.lower() == 'month':
         # Gives the CPUE and water dat for each month trips occured in.
         # Currently, lags show the water data from the same month the indicated number of years previously
-        joined = catch_per_unit_effort.reset_index().join(water_summary,on=['Year','Month']).set_index(catch_per_unit_effort.index.names)
+        joined = self.catch_per_unit_effort.reset_index().join(water_summary,on=['Year','Month']).set_index(catch_per_unit_effort.index.names)
 
         abio_data = water_summary['Abiotic']
 
