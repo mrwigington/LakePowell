@@ -341,7 +341,7 @@ class Operations():
       water_summary = self.summarize_water(water_data, abiotic, timeframe)
 
       if timeframe.lower() == 'year':
-        joined = self.catch_per_unit_effort.join(water_summary)
+        joined = catch_per_unit_effort.join(water_summary)
 
         abio_data = water_summary['Abiotic']
 
